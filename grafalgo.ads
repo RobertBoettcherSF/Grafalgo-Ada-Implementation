@@ -47,8 +47,8 @@ private
    No_Edge : constant Integer := Integer'Last;
    
    type Adjacency_Row is array (Vertex range 0 .. Max_Vertices) of Integer;
-   type Adjacency_Matrix is array (Vertex range 0 .. Max_Vertices) 
-     of Adjacency_Row := (others => (others => No_Edge));
+   type Adjacency_Matrix is array (Vertex range 0 .. Max_Vertices) of
+     Adjacency_Row := (others => (others => No_Edge));
    
    type Graph is record
       Vertex_Count : Vertex := 0;
