@@ -1,5 +1,5 @@
 --  grafalgo.gpr
---  Version: 0.01
+--  Version: 0.02
 --  Description: GNAT Project file for building Grafalgo Ada library.
 
 project Grafalgo is
