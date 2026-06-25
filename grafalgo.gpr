@@ -9,7 +9,7 @@ project Grafalgo is
    for Exec_Dir use ".";
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g", "-O0", "-gnata", "-gnatW8", "-gnatwa", "-gnatyM50", "-gnatyM80", "-gnato", "-gnato0", "-gnato11", "-gnato21", "-gnato22", "-gnato23", "-gnateE", "-gnat2022", "-gnatX");
+      for Default_Switches ("Ada") use ("-g", "-O0", "-gnata", "-gnatW8", "-gnatwa", "-gnatyM50", "-gnatyM80", "-gnato", "-gnato0", "-gnato11", "-gnato21", "-gnato22", "-gnato23", "-gnateE", "-gnatX");
    end Compiler;
 
    package Binder is
