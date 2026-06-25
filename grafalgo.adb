@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.05
+--  Version: 0.07
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -7,10 +7,8 @@ package body Grafalgo is
 
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
    function Prim_MST (G : Graph) return Integer is
-      type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean
-        := (others => False);
-      type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer
-        := (others => Integer'Last);
+      type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean         := (others => False);
+      type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
       
       In_MST : In_MST_Array;
       Key : Key_Array;
@@ -147,10 +145,8 @@ package body Grafalgo is
    -- Implementation of Dijkstra's Shortest Path Algorithm
    function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
      return Integer is
-      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer
-        := (others => Integer'Last);
-      type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
-        of Boolean := (others => False);
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
+      type Visited_Array is array (Vertex range 0 .. Max_Vertices) of Boolean := (others => False);
       
       Dist : Dist_Array;
       Visited : Visited_Array;
@@ -197,8 +193,7 @@ package body Grafalgo is
    -- Implementation of Bellman-Moore Shortest Path Algorithm
    function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
      return Integer is
-      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer
-        := (others => Integer'Last);
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
       
       Dist : Dist_Array;
       Relaxed : Boolean;
@@ -235,20 +230,18 @@ package body Grafalgo is
    -- Implementation of Ford-Fulkerson Maximum Flow Algorithm
    function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) 
      return Integer is
-      type Residual_Array is array (Vertex range 0 .. Max_Vertices,
-        Vertex range 0 .. Max_Vertices) of Integer := (others => (others => 0));
+      type Residual_Array is array (Vertex range 0 .. Max_Vertices, Vertex range 0 .. Max_Vertices) of Integer := (others => (others => 0));
       
       Residual : Residual_Array;
       Max_Flow : Integer := 0;
       
       -- BFS to find augmenting path
-      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) 
-        of Vertex) return Boolean is
-         type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
-           of Boolean := (others => False);
+      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) of Vertex) return Boolean is
+         type Visited_Array is array (Vertex range 0 .. Max_Vertices) of Boolean := (others => False);
          
          Visited : Visited_Array;
-         Queue : array (Positive range 1 .. Max_Vertices * 2) of Vertex;
+         type Queue_Array is array (Positive range 1 .. Max_Vertices * 2) of Vertex;
+         Queue : Queue_Array;
          Queue_Head, Queue_Tail : Positive := 1;
       begin
          for V in 0 .. Max_Vertices loop
