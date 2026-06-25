@@ -1,13 +1,12 @@
 --  grafalgo.ads
---  Version: 0.04
---  Description: Specification of Grafalgo library in Ada, including graph data structures and algorithm interfaces.
-
-with Ada.Containers.Doubly_Linked_Lists;
+--  Version: 0.05
+--  Description: Specification of Grafalgo library in Ada, including graph
+--  data structures and algorithm interfaces.
 
 package Grafalgo is
 
    -- Basic Graph Data Structures
-   type Vertex is range 0 .. Integer'Last;
+   type Vertex is range 0 .. 1000;
    type Edge is record
       From, To : Vertex;
       Weight   : Integer;
@@ -21,12 +20,16 @@ package Grafalgo is
    function Cheriton_Tarjan_MST (G : Graph) return Integer;
 
    -- Shortest Path Algorithms
-   function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) return Integer;
-   function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex) return Integer;
+   function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
+     return Integer;
+   function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
+     return Integer;
 
    -- Maximum Flow Algorithms
-   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) return Integer;
-   function Dinic_Max_Flow (G : Graph; Source, Sink : Vertex) return Integer;
+   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) 
+     return Integer;
+   function Dinic_Max_Flow (G : Graph; Source, Sink : Vertex) 
+     return Integer;
 
    -- Graph Matching and Edge Coloring
    function Hopcroft_Karp_Matching (G : Graph) return Integer;
@@ -39,25 +42,16 @@ package Grafalgo is
    function Is_Empty (G : Graph) return Boolean;
 
 private
-   -- Private implementation details, including data structures and internal functions
-   package Vertex_Lists is new Ada.Containers.Doubly_Linked_Lists(Vertex);
-   use Vertex_Lists;
+   -- Private implementation details
+   Max_Vertices : constant := 1000;
+   No_Edge : constant Integer := Integer'Last;
    
-   type Edge_Record is record
-      To : Vertex;
-      Weight : Integer;
-   end record;
-   
-   package Edge_Lists is new Ada.Containers.Doubly_Linked_Lists(Edge_Record);
-   use Edge_Lists;
-   
-   type Adjacency_Map is array (Vertex range <>) of Edge_Lists.List;
-   type Adjacency_Map_Access is access Adjacency_Map;
-   
+   type Adjacency_Array is array (Vertex range <>) of Integer;
    type Graph is record
-      Vertices : Vertex_Lists.List;
-      Adjacency : Adjacency_Map_Access;
-      Max_Vertex : Vertex := 0;
+      Vertex_Count : Vertex := 0;
+      Adjacency : array (Vertex range 0 .. Max_Vertices) of 
+        Adjacency_Array(0 .. Max_Vertices) := 
+        (others => (others => No_Edge));
    end record;
 
 end Grafalgo;

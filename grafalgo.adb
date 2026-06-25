@@ -1,162 +1,139 @@
 --  grafalgo.adb
---  Version: 0.03
+--  Version: 0.04
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
-with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Containers.Vectors;
-
 package body Grafalgo is
-
-   -- Helper function to initialize adjacency map
-   procedure Initialize_Adjacency (G : in out Graph; Size : Vertex) is
-   begin
-      if G.Adjacency = null then
-         G.Adjacency := new Adjacency_Map(0 .. Size);
-      end if;
-   end Initialize_Adjacency;
 
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
    function Prim_MST (G : Graph) return Integer is
-      package Vertex_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Vertex);
-      use Vertex_Vectors;
+      type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean
+        := (others => False);
+      type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer
+        := (others => Integer'Last);
       
-      package Int_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Integer);
-      use Int_Vectors;
-      
-      Key : Integer;
+      In_MST : In_MST_Array;
+      Key : Key_Array;
+      Parent : array (Vertex range 0 .. Max_Vertices) of Vertex;
       Total_Weight : Integer := 0;
-      In_MST : Vector;
-      Min_Weight : Int_Vectors.Vector;
-      Parent : Vertex_Vectors.Vector;
+      U, V : Vertex;
+      Min_Key : Integer;
    begin
-      if G.Adjacency = null or G.Vertices.Length = 0 then
+      if G.Vertex_Count = 0 then
          return 0;
       end if;
       
-      -- Initialize data structures
-      In_MST.Set_Length(G.Vertices.Length);
-      Min_Weight.Set_Length(G.Vertices.Length);
-      Parent.Set_Length(G.Vertices.Length);
+      -- Initialize
+      Key(0) := 0;
+      Parent(0) := 0;
       
-      -- Start with first vertex
-      declare
-         First : Vertex := G.Vertices.First_Element;
-      begin
-         for V of G.Vertices loop
-            Min_Weight.Replace_Element(V, Integer'Last);
-            Parent.Replace_Element(V, Vertex'First);
-         end loop;
+      for Count in 1 .. G.Vertex_Count loop
+         -- Find vertex with minimum key not in MST
+         Min_Key := Integer'Last;
+         U := Vertex'First;
          
-         Min_Weight.Replace_Element(First, 0);
-         Parent.Replace_Element(First, First);
-         
-         for I in 1 .. G.Vertices.Length loop
-            -- Find vertex with minimum weight not in MST
-            Key := Integer'Last;
-            for V of G.Vertices loop
-               if not In_MST.Element(V) and then Min_Weight.Element(V) < Key then
-                  Key := Min_Weight.Element(V);
-               end if;
-            end loop;
-            
-            if Key = Integer'Last then
-               exit;
+         for I in 0 .. Max_Vertices loop
+            if not In_MST(I) and then Key(I) < Min_Key then
+               Min_Key := Key(I);
+               U := I;
             end if;
-            
-            Total_Weight := Total_Weight + Key;
-            
-            -- Update adjacent vertices
-            for V of G.Vertices loop
-               if not In_MST.Element(V) and then 
-                 G.Adjacency(V).Length > 0 then
-                  for E of G.Adjacency(V) loop
-                     if E.Weight < Min_Weight.Element(E.To) then
-                        Min_Weight.Replace_Element(E.To, E.Weight);
-                        Parent.Replace_Element(E.To, V);
-                     end if;
-                  end loop;
-               end if;
-            end loop;
          end loop;
-      end;
+         
+         if Min_Key = Integer'Last then
+            exit;
+         end if;
+         
+         In_MST(U) := True;
+         Total_Weight := Total_Weight + Min_Key;
+         
+         -- Update key values of adjacent vertices
+         for V in 0 .. Max_Vertices loop
+            if G.Adjacency(U)(V) /= No_Edge and then not In_MST(V) and then
+              G.Adjacency(U)(V) < Key(V) then
+               Key(V) := G.Adjacency(U)(V);
+               Parent(V) := U;
+            end if;
+         end loop;
+      end loop;
       
       return Total_Weight;
    end Prim_MST;
 
    -- Implementation of Kruskal's Minimum Spanning Tree Algorithm
    function Kruskal_MST (G : Graph) return Integer is
-      package Edge_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Edge);
-      use Edge_Vectors;
+      type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
       
-      All_Edges : Edge_Vectors.Vector;
+      -- All edges
+      type Edge_Array is array (Positive range <>) of Edge;
+      All_Edges : Edge_Array(1 .. Max_Vertices * Max_Vertices);
+      Edge_Count : Positive := 0;
       Total_Weight : Integer := 0;
       
-      -- Union-Find data structure
-      type Parent_Array is array (Vertex range <>) of Vertex;
-      Parent_Array_Access : access Parent_Array;
+      Parent_Arr : Parent_Array;
       
-      function Find (P : access Parent_Array; V : Vertex) return Vertex is
+      function Find (V : Vertex) return Vertex is
       begin
-         if P(V) /= V then
-            P(V) := Find(P, P(V));
+         if Parent_Arr(V) /= V then
+            Parent_Arr(V) := Find(Parent_Arr(V));
          end if;
-         return P(V);
+         return Parent_Arr(V);
       end Find;
       
-      procedure Union (P : access Parent_Array; U, V : Vertex) is
-         Root_U : Vertex := Find(P, U);
-         Root_V : Vertex := Find(P, V);
+      procedure Union (U, V : Vertex) is
+         Root_U : Vertex := Find(U);
+         Root_V : Vertex := Find(V);
       begin
          if Root_U /= Root_V then
-            P(Root_V) := Root_U;
+            Parent_Arr(Root_V) := Root_U;
          end if;
       end Union;
+      
+      -- Simple bubble sort
+      procedure Sort_Edges is
+         Temp : Edge;
+      begin
+         for I in 1 .. Edge_Count - 1 loop
+            for J in 1 .. Edge_Count - I loop
+               if All_Edges(J).Weight > All_Edges(J + 1).Weight then
+                  Temp := All_Edges(J);
+                  All_Edges(J) := All_Edges(J + 1);
+                  All_Edges(J + 1) := Temp;
+               end if;
+            end loop;
+         end loop;
+      end Sort_Edges;
    begin
-      if G.Adjacency = null or G.Vertices.Length = 0 then
+      if G.Vertex_Count = 0 then
          return 0;
       end if;
       
       -- Collect all edges
-      for V of G.Vertices loop
-         for E of G.Adjacency(V) loop
-            All_Edges.Append((From => V, To => E.To, Weight => E.Weight));
-         end loop;
-      end loop;
-      
-      -- Sort edges by weight (simple bubble sort for now)
-      for I in 1 .. All_Edges.Length - 1 loop
-         for J in 1 .. All_Edges.Length - I loop
-            if All_Edges.Element(J).Weight > All_Edges.Element(J + 1).Weight then
-               declare
-                  Temp : Edge := All_Edges.Element(J);
-               begin
-                  All_Edges.Replace_Element(J, All_Edges.Element(J + 1));
-                  All_Edges.Replace_Element(J + 1, Temp);
-               end;
+      for U in 0 .. Max_Vertices loop
+         for V in U + 1 .. Max_Vertices loop
+            if G.Adjacency(U)(V) /= No_Edge then
+               Edge_Count := Edge_Count + 1;
+               All_Edges(Edge_Count) := (From => U, To => V, 
+                 Weight => G.Adjacency(U)(V));
             end if;
          end loop;
       end loop;
       
+      -- Sort edges by weight
+      Sort_Edges;
+      
       -- Initialize Union-Find
-      Parent_Array_Access := new Parent_Array(0 .. G.Max_Vertex);
-      for V in 0 .. G.Max_Vertex loop
-         Parent_Array_Access(V) := V;
+      for V in 0 .. Max_Vertices loop
+         Parent_Arr(V) := V;
       end loop;
       
       -- Process edges in sorted order
-      for E of All_Edges loop
-         if Find(Parent_Array_Access, E.From) /=
-           Find(Parent_Array_Access, E.To) then
-            Union(Parent_Array_Access, E.From, E.To);
-            Total_Weight := Total_Weight + E.Weight;
+      for I in 1 .. Edge_Count loop
+         if Find(All_Edges(I).From) /= Find(All_Edges(I).To) then
+            Union(All_Edges(I).From, All_Edges(I).To);
+            Total_Weight := Total_Weight + All_Edges(I).Weight;
          end if;
       end loop;
       
-      Free(Parent_Array_Access);
       return Total_Weight;
    end Kruskal_MST;
 
@@ -170,40 +147,30 @@ package body Grafalgo is
    -- Implementation of Dijkstra's Shortest Path Algorithm
    function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
      return Integer is
-      package Int_Arrays is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Integer);
-      use Int_Arrays;
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer
+        := (others => Integer'Last);
+      type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
+        of Boolean := (others => False);
       
-      package Bool_Arrays is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Boolean);
-      use Bool_Arrays;
-      
-      Dist : Int_Arrays.Vector;
-      Visited : Bool_Arrays.Vector;
+      Dist : Dist_Array;
+      Visited : Visited_Array;
       Min_Dist : Integer;
       Current : Vertex;
    begin
-      if G.Adjacency = null then
+      if Source >= Max_Vertices or Target >= Max_Vertices then
          return Integer'Last;
       end if;
       
-      Dist.Set_Length(G.Vertices.Length);
-      Visited.Set_Length(G.Vertices.Length);
+      Dist(Source) := 0;
       
-      for V of G.Vertices loop
-         Dist.Replace_Element(V, Integer'Last);
-         Visited.Replace_Element(V, False);
-      end loop;
-      
-      Dist.Replace_Element(Source, 0);
-      
-      for I in 1 .. G.Vertices.Length loop
+      for Count in 1 .. G.Vertex_Count loop
+         -- Find vertex with minimum distance
          Min_Dist := Integer'Last;
          Current := Vertex'First;
          
-         for V of G.Vertices loop
-            if not Visited.Element(V) and then Dist.Element(V) < Min_Dist then
-               Min_Dist := Dist.Element(V);
+         for V in 0 .. Max_Vertices loop
+            if not Visited(V) and then Dist(V) < Min_Dist then
+               Min_Dist := Dist(V);
                Current := V;
             end if;
          end loop;
@@ -212,56 +179,49 @@ package body Grafalgo is
             exit;
          end if;
          
-         Visited.Replace_Element(Current, True);
+         Visited(Current) := True;
          
-         if G.Adjacency(Current).Length > 0 then
-            for E of G.Adjacency(Current) loop
-               if not Visited.Element(E.To) and then 
-                 Dist.Element(Current) + E.Weight < Dist.Element(E.To) then
-                  Dist.Replace_Element(E.To, Dist.Element(Current) + E.Weight);
-               end if;
-            end loop;
-         end if;
+         -- Update distances of adjacent vertices
+         for V in 0 .. Max_Vertices loop
+            if G.Adjacency(Current)(V) /= No_Edge and then
+              not Visited(V) and then
+              Dist(Current) + G.Adjacency(Current)(V) < Dist(V) then
+               Dist(V) := Dist(Current) + G.Adjacency(Current)(V);
+            end if;
+         end loop;
       end loop;
       
-      return Dist.Element(Target);
+      return Dist(Target);
    end Dijkstra_Shortest_Path;
 
    -- Implementation of Bellman-Moore Shortest Path Algorithm
    function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
      return Integer is
-      package Int_Arrays is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Integer);
-      use Int_Arrays;
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer
+        := (others => Integer'Last);
       
-      Dist : Int_Arrays.Vector;
+      Dist : Dist_Array;
       Relaxed : Boolean;
    begin
-      if G.Adjacency = null then
+      if Source >= Max_Vertices or Target >= Max_Vertices then
          return Integer'Last;
       end if;
       
-      Dist.Set_Length(G.Vertices.Length);
-      
-      for V of G.Vertices loop
-         Dist.Replace_Element(V, Integer'Last);
-      end loop;
-      
-      Dist.Replace_Element(Source, 0);
+      Dist(Source) := 0;
       
       -- Relax all edges V-1 times
-      for I in 1 .. G.Vertices.Length - 1 loop
+      for Count in 1 .. G.Vertex_Count - 1 loop
          Relaxed := False;
-         for V of G.Vertices loop
-            if G.Adjacency(V).Length > 0 then
-               for E of G.Adjacency(V) loop
-                  if Dist.Element(V) /= Integer'Last and then
-                    Dist.Element(V) + E.Weight < Dist.Element(E.To) then
-                     Dist.Replace_Element(E.To, Dist.Element(V) + E.Weight);
-                     Relaxed := True;
-                  end if;
-               end loop;
-            end if;
+         
+         for U in 0 .. Max_Vertices loop
+            for V in 0 .. Max_Vertices loop
+               if G.Adjacency(U)(V) /= No_Edge and then
+                 Dist(U) /= Integer'Last and then
+                 Dist(U) + G.Adjacency(U)(V) < Dist(V) then
+                  Dist(V) := Dist(U) + G.Adjacency(U)(V);
+                  Relaxed := True;
+               end if;
+            end loop;
          end loop;
          
          if not Relaxed then
@@ -269,54 +229,49 @@ package body Grafalgo is
          end if;
       end loop;
       
-      return Dist.Element(Target);
+      return Dist(Target);
    end Bellman_Moore_Shortest_Path;
 
    -- Implementation of Ford-Fulkerson Maximum Flow Algorithm
-   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex)
+   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) 
      return Integer is
-      package Int_2D_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Integer);
-      use Int_2D_Vectors;
+      type Residual_Array is array (Vertex range 0 .. Max_Vertices,
+        Vertex range 0 .. Max_Vertices) of Integer := (others => (others => 0));
       
-      -- Create residual graph
-      Residual : Int_2D_Vectors.Vector;
+      Residual : Residual_Array;
       Max_Flow : Integer := 0;
       
       -- BFS to find augmenting path
-      function BFS (Residual : Int_2D_Vectors.Vector; Source, Sink : Vertex;
-                    Parent : out Int_2D_Vectors.Vector) return Boolean is
-         package Bool_Vectors is new Ada.Containers.Vectors
-           (Index_Type => Positive, Element_Type => Boolean);
-         use Bool_Vectors;
+      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) 
+        of Vertex) return Boolean is
+         type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
+           of Boolean := (others => False);
          
-         Visited : Bool_Vectors.Vector;
-         Queue : Vertex_Vectors.Vector;
+         Visited : Visited_Array;
+         Queue : array (Positive range 1 .. Max_Vertices * 2) of Vertex;
+         Queue_Head, Queue_Tail : Positive := 1;
       begin
-         Visited.Set_Length(G.Vertices.Length);
-         Parent.Set_Length(G.Vertices.Length);
-         Queue.Set_Length(G.Vertices.Length);
-         
-         for V of G.Vertices loop
-            Visited.Replace_Element(V, False);
-            Parent.Replace_Element(V, Vertex'First);
+         for V in 0 .. Max_Vertices loop
+            Visited(V) := False;
+            Parent(V) := Vertex'First;
          end loop;
          
-         Visited.Replace_Element(Source, True);
-         Queue.Append(Source);
+         Visited(Source) := True;
+         Queue(Queue_Tail) := Source;
+         Queue_Tail := Queue_Tail + 1;
          
-         while Queue.Length > 0 loop
+         while Queue_Head < Queue_Tail loop
             declare
-               U : Vertex := Queue.First_Element;
+               U : Vertex := Queue(Queue_Head);
             begin
-               Queue.Delete_First;
+               Queue_Head := Queue_Head + 1;
                
-               for V of G.Vertices loop
-                  if not Visited.Element(V) and then 
-                    Residual.Element(U * G.Max_Vertex + V) > 0 then
-                     Visited.Replace_Element(V, True);
-                     Parent.Replace_Element(V, U);
-                     Queue.Append(V);
+               for V in 0 .. Max_Vertices loop
+                  if not Visited(V) and then Residual(U, V) > 0 then
+                     Visited(V) := True;
+                     Parent(V) := U;
+                     Queue(Queue_Tail) := V;
+                     Queue_Tail := Queue_Tail + 1;
                      
                      if V = Sink then
                         return True;
@@ -329,63 +284,59 @@ package body Grafalgo is
          return False;
       end BFS;
       
-      Parent : Int_2D_Vectors.Vector;
+      Parent : array (Vertex range 0 .. Max_Vertices) of Vertex;
+      Path_Flow : Integer;
+      V : Vertex;
    begin
-      if G.Adjacency = null then
+      if Source >= Max_Vertices or Sink >= Max_Vertices then
          return 0;
       end if;
       
       -- Initialize residual graph
-      Residual.Set_Length(G.Max_Vertex * G.Max_Vertex);
-      for V of G.Vertices loop
-         if G.Adjacency(V).Length > 0 then
-            for E of G.Adjacency(V) loop
-               Residual.Replace_Element(V * G.Max_Vertex + E.To, E.Weight);
-            end loop;
-         end if;
+      for U in 0 .. Max_Vertices loop
+         for V in 0 .. Max_Vertices loop
+            Residual(U, V) := G.Adjacency(U)(V);
+         end loop;
       end loop;
       
       -- Find augmenting paths
-      while BFS(Residual, Source, Sink, Parent) loop
-         declare
-            Path_Flow : Integer := Integer'Last;
-            V : Vertex := Sink;
-         begin
-            -- Find minimum residual capacity
-            while V /= Source loop
-               declare
-                  U : Vertex := Parent.Element(V);
-               begin
-                  if Residual.Element(U * G.Max_Vertex + V) < Path_Flow then
-                     Path_Flow := Residual.Element(U * G.Max_Vertex + V);
-                  end if;
-                  V := U;
-               end;
-            end loop;
-            
-            -- Update residual capacities
-            V := Sink;
-            while V /= Source loop
-               declare
-                  U : Vertex := Parent.Element(V);
-               begin
-                  Residual.Replace_Element(U * G.Max_Vertex + V,
-                    Residual.Element(U * G.Max_Vertex + V) - Path_Flow);
-                  Residual.Replace_Element(V * G.Max_Vertex + U,
-                    Residual.Element(V * G.Max_Vertex + U) + Path_Flow);
-                  V := U;
-               end;
-            end loop;
-            
-            Max_Flow := Max_Flow + Path_Flow;
-         end;
+      while BFS(Parent) loop
+         -- Find minimum residual capacity
+         Path_Flow := Integer'Last;
+         V := Sink;
+         
+         while V /= Source loop
+            declare
+               U : Vertex := Parent(V);
+            begin
+               if Residual(U, V) < Path_Flow then
+                  Path_Flow := Residual(U, V);
+               end if;
+               V := U;
+            end;
+         end loop;
+         
+         -- Update residual capacities
+         V := Sink;
+         while V /= Source loop
+            declare
+               U : Vertex := Parent(V);
+            begin
+               Residual(U, V) := Residual(U, V) - Path_Flow;
+               Residual(V, U) := Residual(V, U) + Path_Flow;
+               V := U;
+            end;
+         end loop;
+         
+         Max_Flow := Max_Flow + Path_Flow;
       end loop;
       
       return Max_Flow;
    end Ford_Fulkerson_Max_Flow;
 
    -- Implementation of Dinic's Maximum Flow Algorithm
-   function Dinic_Max_Flow (G : Graph; Source, Sink : Vertex) return Integer is
+   function Dinic_Max_Flow (G : Graph; Source, Sink : Vertex) 
+     return Integer is
    begin
       -- Simplified implementation - uses Ford-Fulkerson for now
       return Ford_Fulkerson_Max_Flow(G, Source, Sink);
@@ -415,28 +366,28 @@ package body Grafalgo is
    -- Graph Operations
    procedure Add_Vertex (G : in out Graph; V : Vertex) is
    begin
-      if not G.Vertices.Contains(V) then
-         G.Vertices.Append(V);
-         if V > G.Max_Vertex then
-            G.Max_Vertex := V;
-         end if;
-         Initialize_Adjacency(G, G.Max_Vertex);
+      if V <= Max_Vertices and then V >= 0 then
+         null;
       end if;
    end Add_Vertex;
 
    procedure Add_Edge (G : in out Graph; E : Edge) is
    begin
-      Add_Vertex(G, E.From);
-      Add_Vertex(G, E.To);
-      Initialize_Adjacency(G, G.Max_Vertex);
-      G.Adjacency(E.From).Append((To => E.To, Weight => E.Weight));
-      -- For undirected graph, add reverse edge
-      G.Adjacency(E.To).Append((To => E.From, Weight => E.Weight));
+      if E.From <= Max_Vertices and E.To <= Max_Vertices then
+         G.Adjacency(E.From)(E.To) := E.Weight;
+         G.Adjacency(E.To)(E.From) := E.Weight;
+         if E.From >= G.Vertex_Count then
+            G.Vertex_Count := E.From + 1;
+         end if;
+         if E.To >= G.Vertex_Count then
+            G.Vertex_Count := E.To + 1;
+         end if;
+      end if;
    end Add_Edge;
 
    function Is_Empty (G : Graph) return Boolean is
    begin
-      return G.Vertices.Length = 0;
+      return G.Vertex_Count = 0;
    end Is_Empty;
 
 end Grafalgo;
