@@ -1,5 +1,5 @@
 --  main.adb
---  Version: 0.01
+--  Version: 0.02
 --  Description: Main procedure to demonstrate Grafalgo library usage.
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -17,6 +17,7 @@ begin
 
    -- Test algorithms
    Put_Line("Prim MST: " & Integer'Image(Prim_MST(G)));
-   Put_Line("Dijkstra Shortest Path: " & Integer'Image(Dijkstra_Shortest_Path(G, 1, 2)));
+   Put_Line("Dijkstra Shortest Path: " & 
+            Integer'Image(Dijkstra_Shortest_Path(G, 1, 2)));
    -- Additional test cases and output
 end Main;
