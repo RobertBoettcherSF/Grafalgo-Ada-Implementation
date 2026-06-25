@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.07
+--  Version: 0.08
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -7,11 +7,11 @@ package body Grafalgo is
 
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
    function Prim_MST (G : Graph) return Integer is
-      type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean         := (others => False);
-      type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
+      type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean;
+      type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
       
-      In_MST : In_MST_Array;
-      Key : Key_Array;
+      In_MST : In_MST_Array := (others => False);
+      Key : Key_Array := (others => Integer'Last);
       Parent : array (Vertex range 0 .. Max_Vertices) of Vertex;
       Total_Weight : Integer := 0;
       U, V : Vertex;
@@ -20,30 +20,30 @@ package body Grafalgo is
       if G.Vertex_Count = 0 then
          return 0;
       end if;
-      
+       
       -- Initialize
       Key(0) := 0;
       Parent(0) := 0;
-      
+       
       for Count in 1 .. G.Vertex_Count loop
          -- Find vertex with minimum key not in MST
          Min_Key := Integer'Last;
          U := Vertex'First;
-         
+          
          for I in 0 .. Max_Vertices loop
             if not In_MST(I) and then Key(I) < Min_Key then
                Min_Key := Key(I);
                U := I;
             end if;
          end loop;
-         
+          
          if Min_Key = Integer'Last then
             exit;
          end if;
-         
+          
          In_MST(U) := True;
          Total_Weight := Total_Weight + Min_Key;
-         
+          
          -- Update key values of adjacent vertices
          for V in 0 .. Max_Vertices loop
             if G.Adjacency(U)(V) /= No_Edge and then not In_MST(V) and then
@@ -53,7 +53,7 @@ package body Grafalgo is
             end if;
          end loop;
       end loop;
-      
+       
       return Total_Weight;
    end Prim_MST;
 
@@ -85,7 +85,7 @@ package body Grafalgo is
             Parent_Arr(Root_V) := Root_U;
          end if;
       end Union;
-      
+       
       -- Simple bubble sort
       procedure Sort_Edges is
          Temp : Edge;
@@ -104,7 +104,7 @@ package body Grafalgo is
       if G.Vertex_Count = 0 then
          return 0;
       end if;
-      
+       
       -- Collect all edges
       for U in 0 .. Max_Vertices loop
          for V in U + 1 .. Max_Vertices loop
@@ -115,7 +115,7 @@ package body Grafalgo is
             end if;
          end loop;
       end loop;
-      
+       
       -- Sort edges by weight
       Sort_Edges;
       
@@ -123,7 +123,7 @@ package body Grafalgo is
       for V in 0 .. Max_Vertices loop
          Parent_Arr(V) := V;
       end loop;
-      
+       
       -- Process edges in sorted order
       for I in 1 .. Edge_Count loop
          if Find(All_Edges(I).From) /= Find(All_Edges(I).To) then
@@ -131,7 +131,7 @@ package body Grafalgo is
             Total_Weight := Total_Weight + All_Edges(I).Weight;
          end if;
       end loop;
-      
+       
       return Total_Weight;
    end Kruskal_MST;
 
@@ -145,38 +145,38 @@ package body Grafalgo is
    -- Implementation of Dijkstra's Shortest Path Algorithm
    function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
      return Integer is
-      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
-      type Visited_Array is array (Vertex range 0 .. Max_Vertices) of Boolean := (others => False);
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
+      type Visited_Array is array (Vertex range 0 .. Max_Vertices) of Boolean;
       
-      Dist : Dist_Array;
-      Visited : Visited_Array;
+      Dist : Dist_Array := (others => Integer'Last);
+      Visited : Visited_Array := (others => False);
       Min_Dist : Integer;
       Current : Vertex;
    begin
       if Source >= Max_Vertices or Target >= Max_Vertices then
          return Integer'Last;
       end if;
-      
+       
       Dist(Source) := 0;
-      
+       
       for Count in 1 .. G.Vertex_Count loop
          -- Find vertex with minimum distance
          Min_Dist := Integer'Last;
          Current := Vertex'First;
-         
+          
          for V in 0 .. Max_Vertices loop
             if not Visited(V) and then Dist(V) < Min_Dist then
                Min_Dist := Dist(V);
                Current := V;
             end if;
          end loop;
-         
+          
          if Min_Dist = Integer'Last then
             exit;
          end if;
-         
+          
          Visited(Current) := True;
-         
+          
          -- Update distances of adjacent vertices
          for V in 0 .. Max_Vertices loop
             if G.Adjacency(Current)(V) /= No_Edge and then
@@ -186,28 +186,28 @@ package body Grafalgo is
             end if;
          end loop;
       end loop;
-      
+       
       return Dist(Target);
    end Dijkstra_Shortest_Path;
 
    -- Implementation of Bellman-Moore Shortest Path Algorithm
    function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
      return Integer is
-      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer         := (others => Integer'Last);
+      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
       
-      Dist : Dist_Array;
+      Dist : Dist_Array := (others => Integer'Last);
       Relaxed : Boolean;
    begin
       if Source >= Max_Vertices or Target >= Max_Vertices then
          return Integer'Last;
       end if;
-      
+       
       Dist(Source) := 0;
-      
+       
       -- Relax all edges V-1 times
       for Count in 1 .. G.Vertex_Count - 1 loop
          Relaxed := False;
-         
+          
          for U in 0 .. Max_Vertices loop
             for V in 0 .. Max_Vertices loop
                if G.Adjacency(U)(V) /= No_Edge and then
@@ -218,29 +218,33 @@ package body Grafalgo is
                end if;
             end loop;
          end loop;
-         
+          
          if not Relaxed then
             exit;
          end if;
       end loop;
-      
+       
       return Dist(Target);
    end Bellman_Moore_Shortest_Path;
 
    -- Implementation of Ford-Fulkerson Maximum Flow Algorithm
    function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) 
      return Integer is
-      type Residual_Array is array (Vertex range 0 .. Max_Vertices, Vertex range 0 .. Max_Vertices) of Integer := (others => (others => 0));
+      type Residual_Array is array (Vertex range 0 .. Max_Vertices,
+        Vertex range 0 .. Max_Vertices) of Integer;
       
-      Residual : Residual_Array;
+      Residual : Residual_Array := (others => (others => 0));
       Max_Flow : Integer := 0;
       
       -- BFS to find augmenting path
-      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) of Vertex) return Boolean is
-         type Visited_Array is array (Vertex range 0 .. Max_Vertices) of Boolean := (others => False);
+      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) 
+        of Vertex) return Boolean is
+         type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
+           of Boolean;
          
-         Visited : Visited_Array;
-         type Queue_Array is array (Positive range 1 .. Max_Vertices * 2) of Vertex;
+         Visited : Visited_Array := (others => False);
+         type Queue_Array is array (Positive range 1 .. Max_Vertices * 2)
+           of Vertex;
          Queue : Queue_Array;
          Queue_Head, Queue_Tail : Positive := 1;
       begin
@@ -248,24 +252,24 @@ package body Grafalgo is
             Visited(V) := False;
             Parent(V) := Vertex'First;
          end loop;
-         
+          
          Visited(Source) := True;
          Queue(Queue_Tail) := Source;
          Queue_Tail := Queue_Tail + 1;
-         
+          
          while Queue_Head < Queue_Tail loop
             declare
                U : Vertex := Queue(Queue_Head);
             begin
                Queue_Head := Queue_Head + 1;
-               
+                
                for V in 0 .. Max_Vertices loop
                   if not Visited(V) and then Residual(U, V) > 0 then
                      Visited(V) := True;
                      Parent(V) := U;
                      Queue(Queue_Tail) := V;
                      Queue_Tail := Queue_Tail + 1;
-                     
+                      
                      if V = Sink then
                         return True;
                      end if;
@@ -273,7 +277,7 @@ package body Grafalgo is
                end loop;
             end;
          end loop;
-         
+          
          return False;
       end BFS;
       
@@ -284,14 +288,14 @@ package body Grafalgo is
       if Source >= Max_Vertices or Sink >= Max_Vertices then
          return 0;
       end if;
-      
+       
       -- Initialize residual graph
       for U in 0 .. Max_Vertices loop
          for V in 0 .. Max_Vertices loop
             Residual(U, V) := G.Adjacency(U)(V);
          end loop;
       end loop;
-      
+       
       -- Find augmenting paths
       while BFS(Parent) loop
          -- Find minimum residual capacity
@@ -308,7 +312,7 @@ package body Grafalgo is
                V := U;
             end;
          end loop;
-         
+          
          -- Update residual capacities
          V := Sink;
          while V /= Source loop
@@ -320,10 +324,10 @@ package body Grafalgo is
                V := U;
             end;
          end loop;
-         
+          
          Max_Flow := Max_Flow + Path_Flow;
       end loop;
-      
+       
       return Max_Flow;
    end Ford_Fulkerson_Max_Flow;
 
