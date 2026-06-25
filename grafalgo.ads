@@ -1,5 +1,5 @@
 --  grafalgo.ads
---  Version: 0.02
+--  Version: 0.03
 --  Description: Specification of Grafalgo library in Ada, including graph data structures and algorithm interfaces.
 
 package Grafalgo is
@@ -39,8 +39,9 @@ package Grafalgo is
 private
    -- Private implementation details, including data structures and internal functions
    type Vertex_Array is array (Vertex range <>) of Vertex;
+   type Vertex_Array_Access is access Vertex_Array;
    type Graph is record
-      Adjacency_List : Vertex_Array;
+      Adjacency_List : Vertex_Array_Access;
       -- Additional fields for graph representation
    end record;
 
