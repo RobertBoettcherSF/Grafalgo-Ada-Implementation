@@ -25,12 +25,12 @@ package body Grafalgo is
       Key(0) := 0;
       Parent(0) := 0;
        
-      for Count in 1 .. G.Vertex_Count loop
+      for Count in Vertex range 1 .. G.Vertex_Count loop
          -- Find vertex with minimum key not in MST
          Min_Key := Integer'Last;
          U := Vertex'First;
           
-         for I in 0 .. Max_Vertices loop
+         for I in Vertex range 0 .. Max_Vertices loop
             if not In_MST(I) and then Key(I) < Min_Key then
                Min_Key := Key(I);
                U := I;
@@ -45,7 +45,7 @@ package body Grafalgo is
          Total_Weight := Total_Weight + Min_Key;
           
          -- Update key values of adjacent vertices
-         for V in 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
             if G.Adjacency(U)(V) /= No_Edge and then not In_MST(V) and then
               G.Adjacency(U)(V) < Key(V) then
                Key(V) := G.Adjacency(U)(V);
@@ -64,7 +64,7 @@ package body Grafalgo is
       -- All edges
       type Edge_Array is array (Positive range <>) of Edge;
       All_Edges : Edge_Array(1 .. Max_Vertices * Max_Vertices);
-      Edge_Count : Positive := 0;
+      Edge_Count : Positive := 1;
       Total_Weight : Integer := 0;
       
       Parent_Arr : Parent_Array;
@@ -106,8 +106,8 @@ package body Grafalgo is
       end if;
        
       -- Collect all edges
-      for U in 0 .. Max_Vertices loop
-         for V in U + 1 .. Max_Vertices loop
+      for U in Vertex range 0 .. Max_Vertices loop
+         for V in Vertex range U + 1 .. Max_Vertices loop
             if G.Adjacency(U)(V) /= No_Edge then
                Edge_Count := Edge_Count + 1;
                All_Edges(Edge_Count) := (From => U, To => V, 
@@ -120,12 +120,12 @@ package body Grafalgo is
       Sort_Edges;
       
       -- Initialize Union-Find
-      for V in 0 .. Max_Vertices loop
+      for V in Vertex range 0 .. Max_Vertices loop
          Parent_Arr(V) := V;
       end loop;
        
       -- Process edges in sorted order
-      for I in 1 .. Edge_Count loop
+      for I in Positive range 1 .. Edge_Count loop
          if Find(All_Edges(I).From) /= Find(All_Edges(I).To) then
             Union(All_Edges(I).From, All_Edges(I).To);
             Total_Weight := Total_Weight + All_Edges(I).Weight;
@@ -159,12 +159,12 @@ package body Grafalgo is
        
       Dist(Source) := 0;
        
-      for Count in 1 .. G.Vertex_Count loop
+      for Count in Vertex range 1 .. G.Vertex_Count loop
          -- Find vertex with minimum distance
          Min_Dist := Integer'Last;
          Current := Vertex'First;
           
-         for V in 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
             if not Visited(V) and then Dist(V) < Min_Dist then
                Min_Dist := Dist(V);
                Current := V;
@@ -178,7 +178,7 @@ package body Grafalgo is
          Visited(Current) := True;
           
          -- Update distances of adjacent vertices
-         for V in 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
             if G.Adjacency(Current)(V) /= No_Edge and then
               not Visited(V) and then
               Dist(Current) + G.Adjacency(Current)(V) < Dist(V) then
@@ -205,11 +205,11 @@ package body Grafalgo is
       Dist(Source) := 0;
        
       -- Relax all edges V-1 times
-      for Count in 1 .. G.Vertex_Count - 1 loop
+      for Count in Vertex range 1 .. G.Vertex_Count - 1 loop
          Relaxed := False;
           
-         for U in 0 .. Max_Vertices loop
-            for V in 0 .. Max_Vertices loop
+         for U in Vertex range 0 .. Max_Vertices loop
+            for V in Vertex range 0 .. Max_Vertices loop
                if G.Adjacency(U)(V) /= No_Edge and then
                  Dist(U) /= Integer'Last and then
                  Dist(U) + G.Adjacency(U)(V) < Dist(V) then
@@ -248,7 +248,7 @@ package body Grafalgo is
          Queue : Queue_Array;
          Queue_Head, Queue_Tail : Positive := 1;
       begin
-         for V in 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
             Visited(V) := False;
             Parent(V) := Vertex'First;
          end loop;
@@ -263,7 +263,7 @@ package body Grafalgo is
             begin
                Queue_Head := Queue_Head + 1;
                 
-               for V in 0 .. Max_Vertices loop
+               for V in Vertex range 0 .. Max_Vertices loop
                   if not Visited(V) and then Residual(U, V) > 0 then
                      Visited(V) := True;
                      Parent(V) := U;
@@ -290,8 +290,8 @@ package body Grafalgo is
       end if;
        
       -- Initialize residual graph
-      for U in 0 .. Max_Vertices loop
-         for V in 0 .. Max_Vertices loop
+      for U in Vertex range 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
             Residual(U, V) := G.Adjacency(U)(V);
          end loop;
       end loop;
