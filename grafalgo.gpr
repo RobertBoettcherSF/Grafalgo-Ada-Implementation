@@ -1,0 +1,23 @@
+--  grafalgo.gpr
+--  Version: 0.01
+--  Description: GNAT Project file for building Grafalgo Ada library.
+
+project Grafalgo is
+
+   for Source_Dirs use (".");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+
+   package Compiler is
+      for Default_Switches ("Ada") use ("-g", "-O0", "-gnata", "-gnatW8", "-gnatwa", "-gnatyM50", "-gnatyM80", "-gnato", "-gnato0", "-gnato11", "-gnato21", "-gnato22", "-gnato23", "-gnateE", "-gnat2022", "-gnatX");
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("Ada") use ("-E");
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-g");
+   end Linker;
+
+end Grafalgo;
