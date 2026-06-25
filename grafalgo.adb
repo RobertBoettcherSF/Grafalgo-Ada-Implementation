@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.08
+--  Version: 0.09
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -232,13 +232,13 @@ package body Grafalgo is
      return Integer is
       type Residual_Array is array (Vertex range 0 .. Max_Vertices,
         Vertex range 0 .. Max_Vertices) of Integer;
+      type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
       
       Residual : Residual_Array := (others => (others => 0));
       Max_Flow : Integer := 0;
       
       -- BFS to find augmenting path
-      function BFS (Parent : out array (Vertex range 0 .. Max_Vertices) 
-        of Vertex) return Boolean is
+      function BFS (Parent : out Parent_Array) return Boolean is
          type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
            of Boolean;
          
@@ -281,7 +281,7 @@ package body Grafalgo is
          return False;
       end BFS;
       
-      Parent : array (Vertex range 0 .. Max_Vertices) of Vertex;
+      Parent : Parent_Array;
       Path_Flow : Integer;
       V : Vertex;
    begin
