@@ -1,6 +1,7 @@
 --  grafalgo.adb
---  Version: 0.01
---  Description: Implementation of Grafalgo library algorithms and data structures in Ada.
+--  Version: 0.02
+--  Description: Implementation of Grafalgo library algorithms and data
+--  structures in Ada.
 
 package body Grafalgo is
 
@@ -29,7 +30,8 @@ package body Grafalgo is
    end Cheriton_Tarjan_MST;
 
    -- Implementation of Dijkstra's Shortest Path Algorithm
-   function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) return Integer is
+   function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
+     return Integer is
       -- Algorithm implementation using priority queues
    begin
       -- Detailed implementation here
@@ -37,7 +39,8 @@ package body Grafalgo is
    end Dijkstra_Shortest_Path;
 
    -- Implementation of Bellman-Moore Shortest Path Algorithm
-   function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex) return Integer is
+   function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
+     return Integer is
       -- Algorithm implementation handling negative weights
    begin
       -- Detailed implementation here
@@ -45,7 +48,8 @@ package body Grafalgo is
    end Bellman_Moore_Shortest_Path;
 
    -- Implementation of Ford-Fulkerson Maximum Flow Algorithm
-   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) return Integer is
+   function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex)
+     return Integer is
       -- Algorithm implementation using residual graphs and BFS/DFS
    begin
       -- Detailed implementation here
@@ -87,12 +91,12 @@ package body Grafalgo is
    -- Graph Operations
    procedure Add_Vertex (G : in out Graph; V : Vertex) is
    begin
-      -- Implementation of vertex addition
+      null; -- Implementation of vertex addition
    end Add_Vertex;
 
    procedure Add_Edge (G : in out Graph; E : Edge) is
    begin
-      -- Implementation of edge addition
+      null; -- Implementation of edge addition
    end Add_Edge;
 
    function Is_Empty (G : Graph) return Boolean is
