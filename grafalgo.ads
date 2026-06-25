@@ -1,5 +1,5 @@
 --  grafalgo.ads
---  Version: 0.05
+--  Version: 0.06
 --  Description: Specification of Grafalgo library in Ada, including graph
 --  data structures and algorithm interfaces.
 
@@ -46,12 +46,13 @@ private
    Max_Vertices : constant := 1000;
    No_Edge : constant Integer := Integer'Last;
    
-   type Adjacency_Array is array (Vertex range <>) of Integer;
+   type Adjacency_Row is array (Vertex range 0 .. Max_Vertices) of Integer;
+   type Adjacency_Matrix is array (Vertex range 0 .. Max_Vertices) 
+     of Adjacency_Row := (others => (others => No_Edge));
+   
    type Graph is record
       Vertex_Count : Vertex := 0;
-      Adjacency : array (Vertex range 0 .. Max_Vertices) of 
-        Adjacency_Array(0 .. Max_Vertices) := 
-        (others => (others => No_Edge));
+      Adjacency : Adjacency_Matrix;
    end record;
 
 end Grafalgo;

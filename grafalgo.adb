@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.04
+--  Version: 0.05
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
