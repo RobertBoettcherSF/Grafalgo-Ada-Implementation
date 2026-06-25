@@ -1,6 +1,8 @@
 --  grafalgo.ads
---  Version: 0.03
+--  Version: 0.04
 --  Description: Specification of Grafalgo library in Ada, including graph data structures and algorithm interfaces.
+
+with Ada.Containers.Doubly_Linked_Lists;
 
 package Grafalgo is
 
@@ -38,11 +40,24 @@ package Grafalgo is
 
 private
    -- Private implementation details, including data structures and internal functions
-   type Vertex_Array is array (Vertex range <>) of Vertex;
-   type Vertex_Array_Access is access Vertex_Array;
+   package Vertex_Lists is new Ada.Containers.Doubly_Linked_Lists(Vertex);
+   use Vertex_Lists;
+   
+   type Edge_Record is record
+      To : Vertex;
+      Weight : Integer;
+   end record;
+   
+   package Edge_Lists is new Ada.Containers.Doubly_Linked_Lists(Edge_Record);
+   use Edge_Lists;
+   
+   type Adjacency_Map is array (Vertex range <>) of Edge_Lists.List;
+   type Adjacency_Map_Access is access Adjacency_Map;
+   
    type Graph is record
-      Adjacency_List : Vertex_Array_Access;
-      -- Additional fields for graph representation
+      Vertices : Vertex_Lists.List;
+      Adjacency : Adjacency_Map_Access;
+      Max_Vertex : Vertex := 0;
    end record;
 
 end Grafalgo;
