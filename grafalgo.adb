@@ -365,7 +365,9 @@ package body Grafalgo is
    procedure Add_Vertex (G : in out Graph; V : Vertex) is
    begin
       if V <= Max_Vertices and then V >= 0 then
-         null;
+         if V >= G.Vertex_Count then
+            G.Vertex_Count := V + 1;
+         end if;
       end if;
    end Add_Vertex;
 
