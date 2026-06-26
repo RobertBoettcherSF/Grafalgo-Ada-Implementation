@@ -67,13 +67,8 @@ package body Grafalgo is
    function Kruskal_MST (G : Graph) return Integer is
       type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
       
-      -- All edges
-      type Edge_Array is array (Positive range <>) of Edge;
-      All_Edges : Edge_Array(1 .. Max_Vertices * Max_Vertices);
-      Edge_Count : Integer := 0;
-      Total_Weight : Integer := 0;
-      
       Parent_Arr : Parent_Array;
+      Total_Weight : Integer := 0;
    begin
       if G.Vertex_Count = 0 then
          return 0;
@@ -84,52 +79,57 @@ package body Grafalgo is
          Parent_Arr(V) := V;
       end loop;
       
-      -- Collect all edges
-      for U in Vertex range 0 .. Max_Vertices loop
-         for V in Vertex range U + 1 .. Max_Vertices loop
-            if G.Adjacency(U)(V) /= No_Edge then
-               Edge_Count := Edge_Count + 1;
-               All_Edges(Edge_Count) := (From => U, To => V, 
-                 Weight => G.Adjacency(U)(V));
-            end if;
-         end loop;
-      end loop;
-      
-      -- Simple bubble sort
-      for I in Integer range 1 .. Edge_Count - 1 loop
-         for J in Integer range 1 .. Edge_Count - I loop
-            if All_Edges(J).Weight > All_Edges(J + 1).Weight then
-               declare
-                  Temp : Edge := All_Edges(J);
-               begin
-                  All_Edges(J) := All_Edges(J + 1);
-                  All_Edges(J + 1) := Temp;
-               end;
-            end if;
-         end loop;
-      end loop;
-      
-      -- Process edges in sorted order
-      for I in Integer range 1 .. Edge_Count loop
-         -- Find with path compression
+      -- Collect and sort edges on the fly (no need to store all edges)
+      -- Simple approach: iterate through all possible edges in order
+      for Weight in Integer range 1 .. Integer'Last loop
          declare
-            V1 : Vertex := All_Edges(I).From;
-            V2 : Vertex := All_Edges(I).To;
-            Root1, Root2 : Vertex;
-            function Find (V : Vertex) return Vertex is
-            begin
-               if Parent_Arr(V) /= V then
-                  Parent_Arr(V) := Find(Parent_Arr(V));
-               end if;
-               return Parent_Arr(V);
-            end Find;
+            Found : Boolean := False;
          begin
-            Root1 := Find(V1);
-            Root2 := Find(V2);
-            if Root1 /= Root2 then
-               Parent_Arr(Root2) := Root1;
-               Total_Weight := Total_Weight + All_Edges(I).Weight;
+            -- Find an edge with this weight
+            for U in Vertex range 0 .. Max_Vertices loop
+               for V in Vertex range U + 1 .. Max_Vertices loop
+                  if G.Adjacency(U)(V) = Weight then
+                     -- Found an edge with this weight
+                     Found := True;
+                     exit;
+                  end if;
+               end loop;
+               if Found then
+                  exit;
+               end if;
+            end loop;
+            
+            if not Found then
+               -- No more edges at this weight or higher
+               exit;
             end if;
+            
+            -- Process all edges with this weight
+            for U in Vertex range 0 .. Max_Vertices loop
+               for V in Vertex range U + 1 .. Max_Vertices loop
+                  if G.Adjacency(U)(V) = Weight then
+                     -- Find with path compression
+                     declare
+                        Root_U : Vertex := U;
+                        Root_V : Vertex := V;
+                        function Find (X : Vertex) return Vertex is
+                        begin
+                           if Parent_Arr(X) /= X then
+                              Parent_Arr(X) := Find(Parent_Arr(X));
+                           end if;
+                           return Parent_Arr(X);
+                        end Find;
+                     begin
+                        Root_U := Find(U);
+                        Root_V := Find(V);
+                        if Root_U /= Root_V then
+                           Parent_Arr(Root_V) := Root_U;
+                           Total_Weight := Total_Weight + Weight;
+                        end if;
+                     end;
+                  end if;
+               end loop;
+            end loop;
          end;
       end loop;
         
