@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.16
+--  Version: 0.17
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -14,6 +14,7 @@ package body Grafalgo is
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
    function Prim_MST (G : Graph) return Integer is
    pragma Warnings (Off, "can never be greater than");
+   
       type In_MST_Array is array (Vertex range 0 .. Max_Vertices) of Boolean;
       type Key_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
       
@@ -210,6 +211,7 @@ package body Grafalgo is
    function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
      return Integer is
    pragma Warnings (Off, "can never be greater than");
+   
       type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
       
       Dist : Dist_Array := (others => Integer'Last);
