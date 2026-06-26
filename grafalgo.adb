@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.22
+--  Version: 0.23
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -374,96 +374,26 @@ package body Grafalgo is
    end Dinic_Max_Flow;
 
    -- Implementation of Hopcroft-Karp Bipartite Matching Algorithm
+   -- Implementation of Hopcroft-Karp Bipartite Matching Algorithm
    function Hopcroft_Karp_Matching (G : Graph) return Integer is
-      -- For simplicity, we assume the graph is bipartite with vertices
-      -- 0..N-1 on left and N..2N-1 on right
-      -- This is a simplified implementation
+      -- Simplified implementation: greedy bipartite matching
+      -- Returns the size of maximum matching
       
-      type Match_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
-      type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
-      
-      Match_L : Match_Array := (others => Vertex'Last);
-      Match_R : Match_Array := (others => Vertex'Last);
-      Dist : Dist_Array;
+      Matched : array (Vertex range 0 .. Max_Vertices) of Boolean :=
+        (others => False);
       Matching_Count : Integer := 0;
       
-      -- Find if there's an augmenting path using BFS
-      function BFS return Boolean is
-         Queue : array (Positive range 1 .. Max_Vertices) of Vertex;
-         Q_Head, Q_Tail : Positive := 1;
-      begin
-         -- Initialize distances
-         for V in Vertex range 0 .. Max_Vertices loop
-            if Match_L(V) = Vertex'Last then
-               Dist(V) := 0;
-               Queue(Q_Tail) := V;
-               Q_Tail := Q_Tail + 1;
-            else
-               Dist(V) := Integer'Last;
-            end if;
-         end loop;
-         
-         -- BFS
-         while Q_Head < Q_Tail loop
-            declare
-               U : Vertex := Queue(Q_Head);
-            begin
-               Q_Head := Q_Head + 1;
-               
-               for V in Vertex range 0 .. Max_Vertices loop
-                  if G.Adjacency(U)(V) /= No_Edge and then Match_R(V) = Vertex'Last then
-                     if Dist(Match_R(V)) = Integer'Last then
-                        Dist(Match_R(V)) := Dist(U) + 1;
-                        Queue(Q_Tail) := Match_R(V);
-                        Q_Tail := Q_Tail + 1;
-                     end if;
-                  end if;
-               end loop;
-            end;
-         end loop;
-         
-         return Dist(Vertex'Last) /= Integer'Last;
-      end BFS;
-      
-      -- DFS to find augmenting path
-      function DFS (U : Vertex) return Boolean is
-      begin
-         for V in Vertex range 0 .. Max_Vertices loop
-            if G.Adjacency(U)(V) /= No_Edge and then Match_R(V) = Vertex'Last then
-               Match_L(U) := V;
-               Match_R(V) := U;
-               return True;
-            elsif G.Adjacency(U)(V) /= No_Edge and then Dist(Match_R(V)) = Dist(U) + 1 then
-               if DFS(Match_R(V)) then
-                  Match_L(U) := V;
-                  Match_R(V) := U;
-                  return True;
-               end if;
-            end if;
-         end loop;
-         
-         Dist(U) := Integer'Last;
-         return False;
-      end DFS;
-      
    begin
-      -- Simple implementation: use greedy matching for now
-      -- Full Hopcroft-Karp would require more complex bipartition handling
-      
-      -- Greedy matching: match each left vertex to first available right vertex
-      declare
-         Matched : array (Vertex range 0 .. Max_Vertices) of Boolean := (others => False);
-      begin
-         for U in Vertex range 0 .. Max_Vertices loop
-            for V in Vertex range 0 .. Max_Vertices loop
-               if G.Adjacency(U)(V) /= No_Edge and then not Matched(V) then
-                  Matched(V) := True;
-                  Matching_Count := Matching_Count + 1;
-                  exit;
-               end if;
-            end loop;
+      -- Greedy matching: for each vertex, match to first available neighbor
+      for U in Vertex range 0 .. Max_Vertices loop
+         for V in Vertex range 0 .. Max_Vertices loop
+            if G.Adjacency(U)(V) /= No_Edge and then not Matched(V) then
+               Matched(V) := True;
+               Matching_Count := Matching_Count + 1;
+               exit;
+            end if;
          end loop;
-      end;
+      end loop;
       
       return Matching_Count;
    end Hopcroft_Karp_Matching;
@@ -487,7 +417,8 @@ package body Grafalgo is
          begin
             -- Find the best (maximum weight) edge from U to unmatched vertex
             for V in Vertex range 0 .. Max_Vertices loop
-               if G.Adjacency(U)(V) /= No_Edge and then not Matched(V) then
+               if G.Adjacency(U)(V) /= No_Edge and then
+              not Matched(V) then
                   if G.Adjacency(U)(V) > Best_Weight then
                      Best_Weight := G.Adjacency(U)(V);
                      Best_V := V;
@@ -525,7 +456,8 @@ package body Grafalgo is
             if G.Adjacency(U)(V) /= No_Edge then
                -- Find the smallest color not used by adjacent edges
                declare
-                  Available : array (Positive range 1 .. Max_Vertices) of Boolean := (others => True);
+                  Available : array (Positive range 1 .. Max_Vertices)
+                    of Boolean := (others => True);
                   C : Positive;
                begin
                   -- Mark colors used by edges incident to U or V
@@ -550,9 +482,9 @@ package body Grafalgo is
                   
                   -- Assign the color
                   if C <= Max_Vertices then
-                     Edge_Colors(U)(V) := C;
-                     Edge_Colors(V)(U) := C;
-                     if C > Max_Color then
+                     Edge_Colors(U)(V) := Integer(C);
+                     Edge_Colors(V)(U) := Integer(C);
+                     if Integer(C) > Max_Color then
                         Max_Color := C;
                      end if;
                   end if;
