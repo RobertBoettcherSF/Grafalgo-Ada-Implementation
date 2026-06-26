@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.19
+--  Version: 0.20
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -28,9 +28,19 @@ package body Grafalgo is
          return 0;
       end if;
        
-      -- Initialize - find first vertex with edges
-      -- Start with vertex 0
-      Key(0) := 0;
+      -- Initialize: find first vertex with edges
+      -- Start with the first vertex that has at least one edge
+      for V in Vertex range 0 .. Max_Vertices loop
+         for W in Vertex range 0 .. Max_Vertices loop
+            if G.Adjacency(V)(W) /= No_Edge then
+               Key(V) := 0;
+               exit;
+            end if;
+         end loop;
+         if Key(V) = 0 then
+            exit;
+         end if;
+      end loop;
        
       for Count in Vertex range 1 .. G.Vertex_Count loop
          -- Find vertex with minimum key not in MST

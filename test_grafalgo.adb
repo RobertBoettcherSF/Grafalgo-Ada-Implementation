@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.04
+--  Version: 0.05
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -212,6 +212,18 @@ begin
      "Shortest path 0->1->2->3 is 6");
    New_Line;
 
+   New_Line;
+
+   -- Test 13: Prim's MST with isolated vertex 0
+   Put_Line("--- Test 13: Prim's MST with Isolated Vertex 0 ---");
+   Initialize(G);
+   Add_Vertex(G, 0);
+   Add_Vertex(G, 1);
+   Add_Vertex(G, 2);
+   Add_Edge(G, (From => 1, To => 2, Weight => 5));
+   Assert_Equal(Prim_MST(G), 5, "Prim MST with isolated vertex 0 is 5");
+   Assert_Equal(Kruskal_MST(G), 5, "Kruskal MST with isolated vertex 0 is 5");
+   New_Line;
    Put_Line("=== All Tests Passed ===");
 
    exception
