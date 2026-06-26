@@ -1,5 +1,5 @@
 --  grafalgo.ads
---  Version: 0.11
+--  Version: 0.12
 --  Description: Specification of Grafalgo library in Ada, including graph
 --  data structures and algorithm interfaces.
 

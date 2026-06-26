@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.29
+--  Version: 0.30
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -387,7 +387,8 @@ package body Grafalgo is
       -- Greedy matching: for each vertex, match to first available neighbor
       for U in Vertex range 0 .. Max_Vertices loop
          for V in Vertex range 0 .. Max_Vertices loop
-            if G.Adjacency(U)(V) /= No_Edge and then not Matched(U) and then not Matched(V) then
+            if G.Adjacency(U)(V) /= No_Edge and then not Matched(U) and then
+              not Matched(V) then
                Matched(U) := True;
                Matched(V) := True;
                Matching_Count := Matching_Count + 1;
@@ -412,33 +413,39 @@ package body Grafalgo is
    begin
       -- Greedy approach: for each vertex, find the best match
       for U in Vertex range 0 .. Max_Vertices loop
-         declare
-            Best_V : Vertex := Vertex'Last;
-            Best_Weight : Integer := Integer'Last;
-         begin
-            -- Find the best (maximum weight) edge from U to unmatched vertex
-            for V in Vertex range 0 .. Max_Vertices loop
-               if G.Adjacency(U)(V) /= No_Edge and then
-              not Matched(V) then
-                  if G.Adjacency(U)(V) > Best_Weight then
-                     Best_Weight := G.Adjacency(U)(V);
-                     Best_V := V;
+         if Matched(U) then
+            -- U is already matched, skip
+            null;
+         else
+            declare
+               Best_V : Vertex := Vertex'Last;
+               Best_Weight : Integer := Integer'Last;
+            begin
+               -- Find the best (maximum weight) edge from U to unmatched
+               -- vertex
+               for V in Vertex range 0 .. Max_Vertices loop
+                  if G.Adjacency(U)(V) /= No_Edge and then
+                    not Matched(V) then
+                     if G.Adjacency(U)(V) > Best_Weight then
+                        Best_Weight := G.Adjacency(U)(V);
+                        Best_V := V;
+                     end if;
                   end if;
+               end loop;
+               
+               -- If we found a match, use it
+               if Best_V /= Vertex'Last then
+                  Matched(U) := True;
+                  Matched(Best_V) := True;
+                  Total_Weight := Total_Weight + Best_Weight;
                end if;
-            end loop;
-            
-            -- If we found a match, use it
-            if Best_V /= Vertex'Last then
-               Matched(Best_V) := True;
-               Total_Weight := Total_Weight + Best_Weight;
-            end if;
-         end;
+            end;
+         end if;
       end loop;
       
       return Total_Weight;
    end Hungarian_Algorithm_Matching;
 
-   -- Implementation of Gabow-Tarjan Edge Coloring Algorithm
    -- Implementation of Gabow-Tarjan Edge Coloring Algorithm
    function Gabow_Tarjan_Edge_Coloring (G : Graph) return Integer is
       -- Simplified implementation: greedy edge coloring

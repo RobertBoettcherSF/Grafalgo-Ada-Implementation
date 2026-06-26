@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.11
+--  Version: 0.12
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -269,7 +269,7 @@ begin
    Add_Edge(G, (From => 0, To => 3, Weight => 5));
    Add_Edge(G, (From => 1, To => 2, Weight => 4));
    Add_Edge(G, (From => 1, To => 3, Weight => 2));
-   Assert_Equal(Hungarian_Algorithm_Matching(G), 8, 
+   Assert_Equal(Hungarian_Algorithm_Matching(G), 9, 
      "Hungarian finds max weight matching: 0-3 (5) + 1-2 (4) = 9");
    New_Line;
 
