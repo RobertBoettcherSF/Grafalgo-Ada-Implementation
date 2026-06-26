@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.17
+--  Version: 0.18
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -69,11 +69,12 @@ package body Grafalgo is
       type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
       type Edge_List is array (Integer range 1 .. Max_Vertices * Max_Vertices)
         of Edge;
+      type Edge_List_Access is access Edge_List;
       
       Parent_Arr : Parent_Array;
       Total_Weight : Integer := 0;
       Edge_Count : Integer := 0;
-      Edges : Edge_List;
+      Edges : Edge_List_Access := new Edge_List;
       
       -- Find with path compression (defined here to access Parent_Arr)
       function Find (X : Vertex) return Vertex is
@@ -92,7 +93,7 @@ package body Grafalgo is
             for V in Vertex range U + 1 .. Max_Vertices loop
                if G.Adjacency(U)(V) /= No_Edge then
                   Edge_Count := Edge_Count + 1;
-                  Edges(Edge_Count) := (From => U, To => V, 
+                  Edges.all(Edge_Count) := (From => U, To => V, 
                     Weight => G.Adjacency(U)(V));
                end if;
             end loop;
@@ -105,10 +106,10 @@ package body Grafalgo is
       begin
          for I in Integer range 1 .. Edge_Count - 1 loop
             for J in Integer range 1 .. Edge_Count - I loop
-               if Edges(J).Weight > Edges(J + 1).Weight then
-                  Temp := Edges(J);
-                  Edges(J) := Edges(J + 1);
-                  Edges(J + 1) := Temp;
+               if Edges.all(J).Weight > Edges.all(J + 1).Weight then
+                  Temp := Edges.all(J);
+                  Edges.all(J) := Edges.all(J + 1);
+                  Edges.all(J + 1) := Temp;
                end if;
             end loop;
          end loop;
@@ -137,7 +138,7 @@ package body Grafalgo is
       -- Process edges in sorted order
       for I in Integer range 1 .. Edge_Count loop
          declare
-            E : constant Edge := Edges(I);
+            E : constant Edge := Edges.all(I);
             Root_U : constant Vertex := Find(E.From);
             Root_V : constant Vertex := Find(E.To);
          begin
