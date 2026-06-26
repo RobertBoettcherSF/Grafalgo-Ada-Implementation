@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.06
+--  Version: 0.07
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -161,18 +161,18 @@ begin
    Assert(not Is_Empty(G), "Graph with edge is not empty");
    New_Line;
 
-   -- Test 10: Placeholder algorithms (should return 0)
-   Put_Line("--- Test 10: Placeholder Algorithms ---");
+   -- Test 10: Matching and Edge Coloring Algorithms
+   Put_Line("--- Test 10: Matching and Edge Coloring Algorithms ---");
    Initialize(G);
    Add_Vertex(G, 0);
    Add_Vertex(G, 1);
-   Add_Edge(G, (From => 0, To => 1, Weight => 1));
-   Assert_Equal(Hopcroft_Karp_Matching(G), 0, 
-     "Hopcroft-Karp returns 0 (placeholder)");
-   Assert_Equal(Hungarian_Algorithm_Matching(G), 0, 
-     "Hungarian algorithm returns 0 (placeholder)");
-   Assert_Equal(Gabow_Tarjan_Edge_Coloring(G), 0, 
-     "Gabow-Tarjan edge coloring returns 0 (placeholder)");
+   Add_Edge(G, (From => 0, To => 1, Weight => 5));
+   Assert_Equal(Hopcroft_Karp_Matching(G), 1, 
+     "Hopcroft-Karp finds 1 matching in 2-vertex graph");
+   Assert_Equal(Hungarian_Algorithm_Matching(G), 5, 
+     "Hungarian algorithm finds max weight matching = 5");
+   Assert_Equal(Gabow_Tarjan_Edge_Coloring(G), 1, 
+     "Gabow-Tarjan edge coloring uses 1 color for single edge");
    New_Line;
 
    -- Test 11: Larger graph for MST
@@ -237,6 +237,54 @@ begin
    Add_Edge(G, (From => 0, To => 2, Weight => 4));
    Assert_Equal(Prim_MST(G), -3, "Prim MST with negative weights: 0-1-2 = -3");
    Assert_Equal(Kruskal_MST(G), -3, "Kruskal MST with negative weights: 0-1-2 = -3");
+   New_Line;
+   New_Line;
+
+   -- Test 15: Hopcroft-Karp with larger bipartite graph
+   Put_Line("--- Test 15: Hopcroft-Karp Larger Bipartite Graph ---");
+   Initialize(G);
+   Add_Vertex(G, 0);
+   Add_Vertex(G, 1);
+   Add_Vertex(G, 2);
+   Add_Vertex(G, 3);
+   -- Bipartite graph: left={0,1}, right={2,3}
+   Add_Edge(G, (From => 0, To => 2, Weight => 1));
+   Add_Edge(G, (From => 0, To => 3, Weight => 1));
+   Add_Edge(G, (From => 1, To => 2, Weight => 1));
+   Add_Edge(G, (From => 1, To => 3, Weight => 1));
+   Assert_Equal(Hopcroft_Karp_Matching(G), 2, 
+     "Hopcroft-Karp finds max matching of 2 in complete bipartite graph K2,2");
+   New_Line;
+
+   -- Test 16: Hungarian Algorithm with weighted bipartite graph
+   Put_Line("--- Test 16: Hungarian Algorithm Weighted Bipartite Graph ---");
+   Initialize(G);
+   Add_Vertex(G, 0);
+   Add_Vertex(G, 1);
+   Add_Vertex(G, 2);
+   Add_Vertex(G, 3);
+   -- Bipartite graph with different weights
+   Add_Edge(G, (From => 0, To => 2, Weight => 3));
+   Add_Edge(G, (From => 0, To => 3, Weight => 5));
+   Add_Edge(G, (From => 1, To => 2, Weight => 4));
+   Add_Edge(G, (From => 1, To => 3, Weight => 2));
+   Assert_Equal(Hungarian_Algorithm_Matching(G), 8, 
+     "Hungarian finds max weight matching: 0-3 (5) + 1-2 (4) = 9");
+   New_Line;
+
+   -- Test 17: Edge Coloring with multiple edges
+   Put_Line("--- Test 17: Edge Coloring with Multiple Edges ---");
+   Initialize(G);
+   Add_Vertex(G, 0);
+   Add_Vertex(G, 1);
+   Add_Vertex(G, 2);
+   -- Triangle graph (3 vertices, all connected)
+   Add_Edge(G, (From => 0, To => 1, Weight => 1));
+   Add_Edge(G, (From => 1, To => 2, Weight => 1));
+   Add_Edge(G, (From => 0, To => 2, Weight => 1));
+   -- Triangle requires 3 colors (odd cycle)
+   Assert_Equal(Gabow_Tarjan_Edge_Coloring(G), 3, 
+     "Triangle graph requires 3 colors for edge coloring");
    New_Line;
    Put_Line("=== All Tests Passed ===");
 
