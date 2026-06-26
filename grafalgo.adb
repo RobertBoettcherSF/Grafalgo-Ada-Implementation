@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.25
+--  Version: 0.26
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -516,7 +516,8 @@ package body Grafalgo is
       end if;
    end Add_Edge;
 
-   procedure Add_Directed_Edge (G : in out Graph; From, To : Vertex; Weight : Integer) is
+   procedure Add_Directed_Edge (G : in out Graph; From, To : Vertex;
+      Weight : Integer) is
    begin
       G.Adjacency(From)(To) := Weight;
       if From >= G.Vertex_Count then

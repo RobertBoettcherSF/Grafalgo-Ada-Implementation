@@ -40,7 +40,8 @@ package Grafalgo is
    procedure Initialize (G : out Graph);
    procedure Add_Vertex (G : in out Graph; V : Vertex);
    procedure Add_Edge (G : in out Graph; E : Edge);
-   procedure Add_Directed_Edge (G : in out Graph; From, To : Vertex; Weight : Integer);
+   procedure Add_Directed_Edge (G : in out Graph; From, To : Vertex;
+      Weight : Integer);
    function Is_Empty (G : Graph) return Boolean;
 
 private
