@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.14
+--  Version: 0.15
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -279,7 +279,8 @@ package body Grafalgo is
                Queue_Head := Queue_Head + 1;
                 
                for V in Vertex range 0 .. Max_Vertices loop
-                  if not Visited(V) and then Residual(U, V) > 0 then
+                  if not Visited(V) and then Residual(U, V) /= No_Edge and then
+                    Residual(U, V) > 0 then
                      Visited(V) := True;
                            Queue(Queue_Tail) := V;
                      Queue_Tail := Queue_Tail + 1;
@@ -306,7 +307,11 @@ package body Grafalgo is
       -- Initialize residual graph
       for U in Vertex range 0 .. Max_Vertices loop
          for V in Vertex range 0 .. Max_Vertices loop
-            Residual(U, V) := G.Adjacency(U)(V);
+            if G.Adjacency(U)(V) /= No_Edge then
+               Residual(U, V) := G.Adjacency(U)(V);
+            else
+               Residual(U, V) := 0;
+            end if;
          end loop;
       end loop;
        
