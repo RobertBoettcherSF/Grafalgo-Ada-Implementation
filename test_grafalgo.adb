@@ -32,7 +32,6 @@ procedure Test_Grafalgo is
 
    -- Test cases
    G : Graph;
-   E : Edge;
 
 begin
    Put_Line("=== Grafalgo Test Suite ===");

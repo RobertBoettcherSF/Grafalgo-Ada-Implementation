@@ -1,8 +1,6 @@
 --  test_grafalgo.gpr
---  Version: 0.01
+--  Version: 0.02
 --  Description: GNAT Project file for testing Grafalgo library
-
-with "grafalgo.gpr";
 
 project Test_Grafalgo is
 
@@ -12,7 +10,7 @@ project Test_Grafalgo is
    for Main use ("test_grafalgo.adb");
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g", "-O0", "-gnata");
+      for Default_Switches ("Ada") use ("-g", "-O0");
    end Compiler;
 
 end Test_Grafalgo;
