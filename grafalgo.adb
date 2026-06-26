@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.28
+--  Version: 0.29
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -375,7 +375,6 @@ package body Grafalgo is
    end Dinic_Max_Flow;
 
    -- Implementation of Hopcroft-Karp Bipartite Matching Algorithm
-   -- Implementation of Hopcroft-Karp Bipartite Matching Algorithm
    function Hopcroft_Karp_Matching (G : Graph) return Integer is
       -- Simplified implementation: greedy bipartite matching
       -- Returns the size of maximum matching
@@ -388,7 +387,8 @@ package body Grafalgo is
       -- Greedy matching: for each vertex, match to first available neighbor
       for U in Vertex range 0 .. Max_Vertices loop
          for V in Vertex range 0 .. Max_Vertices loop
-            if G.Adjacency(U)(V) /= No_Edge and then not Matched(V) then
+            if G.Adjacency(U)(V) /= No_Edge and then not Matched(U) and then not Matched(V) then
+               Matched(U) := True;
                Matched(V) := True;
                Matching_Count := Matching_Count + 1;
                exit;
