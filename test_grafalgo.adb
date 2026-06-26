@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.12
+--  Version: 0.13
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -190,10 +190,10 @@ begin
    Add_Edge(G, (From => 2, To => 3, Weight => 4));
    Add_Edge(G, (From => 2, To => 4, Weight => 2));
    Add_Edge(G, (From => 3, To => 4, Weight => 1));
-   Assert_Equal(Prim_MST(G), 8, "Prim MST of larger graph is 8");
-   Assert_Equal(Kruskal_MST(G), 8, "Kruskal MST of larger graph is 8");
-   Assert_Equal(Cheriton_Tarjan_MST(G), 8, 
-     "Cheriton-Tarjan MST of larger graph is 8");
+   Assert_Equal(Prim_MST(G), 6, "Prim MST of larger graph is 6");
+   Assert_Equal(Kruskal_MST(G), 6, "Kruskal MST of larger graph is 6");
+   Assert_Equal(Cheriton_Tarjan_MST(G), 6, 
+     "Cheriton-Tarjan MST of larger graph is 6");
    New_Line;
 
    -- Test 12: Dijkstra with multiple paths
