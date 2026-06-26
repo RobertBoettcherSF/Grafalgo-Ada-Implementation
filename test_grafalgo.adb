@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.07
+--  Version: 0.08
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -236,7 +236,8 @@ begin
    Add_Edge(G, (From => 1, To => 2, Weight => -2));
    Add_Edge(G, (From => 0, To => 2, Weight => 4));
    Assert_Equal(Prim_MST(G), -3, "Prim MST with negative weights: 0-1-2 = -3");
-   Assert_Equal(Kruskal_MST(G), -3, "Kruskal MST with negative weights: 0-1-2 = -3");
+   Assert_Equal(Kruskal_MST(G), -3, 
+     "Kruskal MST with negative weights: 0-1-2 = -3");
    New_Line;
    New_Line;
 
