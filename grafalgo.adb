@@ -70,7 +70,7 @@ package body Grafalgo is
       -- All edges
       type Edge_Array is array (Positive range <>) of Edge;
       All_Edges : Edge_Array(1 .. Max_Vertices * Max_Vertices);
-      Edge_Count : Positive := 1;
+      Edge_Count : Integer := 0;
       Total_Weight : Integer := 0;
       
       Parent_Arr : Parent_Array;
@@ -96,8 +96,8 @@ package body Grafalgo is
       procedure Sort_Edges is
          Temp : Edge;
       begin
-         for I in 1 .. Edge_Count - 1 loop
-            for J in 1 .. Edge_Count - I loop
+         for I in Integer range 1 .. Edge_Count - 1 loop
+            for J in Integer range 1 .. Edge_Count - I loop
                if All_Edges(J).Weight > All_Edges(J + 1).Weight then
                   Temp := All_Edges(J);
                   All_Edges(J) := All_Edges(J + 1);
@@ -131,7 +131,7 @@ package body Grafalgo is
       end loop;
        
       -- Process edges in sorted order
-      for I in Positive range 1 .. Edge_Count loop
+      for I in Integer range 1 .. Edge_Count loop
          if Find(All_Edges(I).From) /= Find(All_Edges(I).To) then
             Union(All_Edges(I).From, All_Edges(I).To);
             Total_Weight := Total_Weight + All_Edges(I).Weight;
