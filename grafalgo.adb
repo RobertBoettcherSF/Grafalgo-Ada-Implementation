@@ -1,9 +1,15 @@
 --  grafalgo.adb
---  Version: 0.09
+--  Version: 0.11
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
 package body Grafalgo is
+
+   -- Initialize a new empty graph
+   procedure Initialize (G : out Graph) is
+   begin
+      G := (Vertex_Count => 0, Adjacency => (others => (others => No_Edge)));
+   end Initialize;
 
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
    function Prim_MST (G : Graph) return Integer is

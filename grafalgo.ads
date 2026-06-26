@@ -1,5 +1,5 @@
 --  grafalgo.ads
---  Version: 0.08
+--  Version: 0.09
 --  Description: Specification of Grafalgo library in Ada, including graph
 --  data structures and algorithm interfaces.
 
@@ -37,6 +37,7 @@ package Grafalgo is
    function Gabow_Tarjan_Edge_Coloring (G : Graph) return Integer;
 
    -- Graph Operations
+   procedure Initialize (G : out Graph);
    procedure Add_Vertex (G : in out Graph; V : Vertex);
    procedure Add_Edge (G : in out Graph; E : Edge);
    function Is_Empty (G : Graph) return Boolean;
