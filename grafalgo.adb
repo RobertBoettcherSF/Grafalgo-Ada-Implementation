@@ -1,17 +1,21 @@
 --  grafalgo.adb
---  Version: 0.31
+--  Version: 0.32
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
 package body Grafalgo is
 
    -- Initialize a new empty graph
+   -- Sets all adjacency matrix entries to No_Edge and Vertex_Count to 0
    procedure Initialize (G : out Graph) is
    begin
       G := (Vertex_Count => 0, Adjacency => (others => (others => No_Edge)));
    end Initialize;
 
    -- Implementation of Prim's Minimum Spanning Tree Algorithm
+   -- Uses a greedy approach: starts from an arbitrary vertex and repeatedly
+   -- adds the shortest edge connected to the growing MST.
+   -- Time complexity: O(V^2) where V is the number of vertices
    function Prim_MST (G : Graph) return Integer is
    pragma Warnings (Off, "can never be greater than");
    
@@ -75,6 +79,9 @@ package body Grafalgo is
    end Prim_MST;
 
    -- Implementation of Kruskal's Minimum Spanning Tree Algorithm
+   -- Uses Union-Find with path compression. Sorts all edges by weight and
+   -- adds them to the MST if they connect two different components.
+   -- Time complexity: O(E log E) where E is the number of edges
    function Kruskal_MST (G : Graph) return Integer is
       type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
       type Edge_List is array (Integer range 1 .. Max_Vertices * Max_Vertices)
@@ -163,6 +170,9 @@ package body Grafalgo is
    end Kruskal_MST;
 
    -- Implementation of Cheriton-Tarjan Minimum Spanning Tree Algorithm
+   -- Note: This is a simplified implementation that currently uses Prim's
+   -- algorithm as a fallback. The full Cheriton-Tarjan algorithm would use
+   -- a more sophisticated approach with advanced data structures.
    function Cheriton_Tarjan_MST (G : Graph) return Integer is
    begin
       -- Simplified implementation - uses Prim's for now
@@ -170,6 +180,9 @@ package body Grafalgo is
    end Cheriton_Tarjan_MST;
 
    -- Implementation of Dijkstra's Shortest Path Algorithm
+   -- Finds the shortest path from Source to Target in a graph with
+   -- non-negative edge weights using a greedy approach.
+   -- Time complexity: O(V^2) where V is the number of vertices
    function Dijkstra_Shortest_Path (G : Graph; Source, Target : Vertex) 
      return Integer is
       type Dist_Array is array (Vertex range 0 .. Max_Vertices) of Integer;
@@ -219,6 +232,10 @@ package body Grafalgo is
    end Dijkstra_Shortest_Path;
 
    -- Implementation of Bellman-Moore Shortest Path Algorithm
+   -- Finds shortest paths in graphs with negative edge weights by relaxing
+   -- all edges V-1 times. Can detect negative cycles (though not implemented
+   -- in this simplified version).
+   -- Time complexity: O(V*E) where V is vertices and E is edges
    function Bellman_Moore_Shortest_Path (G : Graph; Source, Target : Vertex)
      return Integer is
    pragma Warnings (Off, "can never be greater than");
@@ -258,6 +275,10 @@ package body Grafalgo is
    end Bellman_Moore_Shortest_Path;
 
    -- Implementation of Ford-Fulkerson Maximum Flow Algorithm
+   -- Finds the maximum flow from Source to Sink in a flow network by
+   -- repeatedly finding augmenting paths using BFS and updating the
+   -- residual capacities.
+   -- Time complexity: O(E * max_flow) where E is the number of edges
    function Ford_Fulkerson_Max_Flow (G : Graph; Source, Sink : Vertex) 
      return Integer is
       type Residual_Array is array (Vertex range 0 .. Max_Vertices,
@@ -367,6 +388,9 @@ package body Grafalgo is
    end Ford_Fulkerson_Max_Flow;
 
    -- Implementation of Dinic's Maximum Flow Algorithm
+   -- Note: This is a simplified implementation that currently uses
+   -- Ford-Fulkerson as a fallback. The full Dinic's algorithm would use
+   -- BFS for level graph construction and DFS for blocking flows.
    function Dinic_Max_Flow (G : Graph; Source, Sink : Vertex) 
      return Integer is
    begin
@@ -375,6 +399,12 @@ package body Grafalgo is
    end Dinic_Max_Flow;
 
    -- Implementation of Hopcroft-Karp Bipartite Matching Algorithm
+   -- Note: This is a simplified greedy implementation. The full Hopcroft-Karp
+   -- algorithm uses BFS to find multiple augmenting paths in each iteration,
+   -- achieving O(sqrt(V) * E) time complexity.
+   -- This simplified version uses a greedy approach: for each vertex,
+   -- match it to the first available neighbor.
+   -- Returns the size of maximum matching
    function Hopcroft_Karp_Matching (G : Graph) return Integer is
       -- Simplified implementation: greedy bipartite matching
       -- Returns the size of maximum matching
@@ -401,6 +431,12 @@ package body Grafalgo is
    end Hopcroft_Karp_Matching;
 
    -- Implementation of Hungarian Algorithm for Bipartite Matching
+   -- Note: This is a simplified greedy implementation. The full Hungarian
+   -- algorithm (Kuhn-Munkres) uses a more sophisticated approach with
+   -- dual variables and achieves O(V^3) time complexity.
+   -- This simplified version uses a greedy approach: for each vertex,
+   -- find the best (maximum weight) match to an unmatched vertex.
+   -- Returns the total weight of the maximum weight matching
    function Hungarian_Algorithm_Matching (G : Graph) return Integer is
       -- Simplified implementation: find maximum weight matching
       -- using a greedy approach (not full Hungarian algorithm)
@@ -447,6 +483,12 @@ package body Grafalgo is
    end Hungarian_Algorithm_Matching;
 
    -- Implementation of Gabow-Tarjan Edge Coloring Algorithm
+   -- Note: This is a simplified greedy implementation. The full Gabow-Tarjan
+   -- algorithm is more sophisticated and guarantees optimal coloring for
+   -- bipartite graphs.
+   -- This simplified version uses a greedy approach: for each edge,
+   -- assign the smallest available color not used by adjacent edges.
+   -- Returns the number of colors used (chromatic index)
    function Gabow_Tarjan_Edge_Coloring (G : Graph) return Integer is
       -- Simplified implementation: greedy edge coloring
       -- Returns the number of colors used (chromatic index)
@@ -505,6 +547,9 @@ package body Grafalgo is
    end Gabow_Tarjan_Edge_Coloring;
 
    -- Graph Operations
+
+   -- Add a vertex to the graph. If V is greater than or equal to the current
+   -- Vertex_Count, updates Vertex_Count to V + 1.
    procedure Add_Vertex (G : in out Graph; V : Vertex) is
    begin
       if V >= G.Vertex_Count then
@@ -512,6 +557,9 @@ package body Grafalgo is
       end if;
    end Add_Vertex;
 
+   -- Add an undirected edge to the graph. The edge is added in both
+   -- directions (From->To and To->From). Also updates Vertex_Count if
+   -- necessary to include both vertices.
    procedure Add_Edge (G : in out Graph; E : Edge) is
    begin
       G.Adjacency(E.From)(E.To) := E.Weight;
@@ -524,6 +572,9 @@ package body Grafalgo is
       end if;
    end Add_Edge;
 
+   -- Add a directed edge to the graph. The edge is added only in the
+   -- specified direction (From->To). Also updates Vertex_Count if
+   -- necessary to include both vertices.
    procedure Add_Directed_Edge (G : in out Graph; From, To : Vertex;
       Weight : Integer) is
    begin
@@ -536,6 +587,7 @@ package body Grafalgo is
       end if;
    end Add_Directed_Edge;
 
+   -- Check if the graph is empty (has no vertices)
    function Is_Empty (G : Graph) return Boolean is
    begin
       return G.Vertex_Count = 0;
