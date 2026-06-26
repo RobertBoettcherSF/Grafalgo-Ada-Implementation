@@ -84,9 +84,11 @@ package body Grafalgo is
       end Find;
       
       procedure Union (U, V : Vertex) is
-         Root_U : Vertex := Find(U);
-         Root_V : Vertex := Find(V);
+         Root_U : Vertex;
+         Root_V : Vertex;
       begin
+         Root_U := Find(U);
+         Root_V := Find(V);
          if Root_U /= Root_V then
             Parent_Arr(Root_V) := Root_U;
          end if;
