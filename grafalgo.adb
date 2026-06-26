@@ -74,45 +74,16 @@ package body Grafalgo is
       Total_Weight : Integer := 0;
       
       Parent_Arr : Parent_Array;
-      
-      function Find (V : Vertex) return Vertex is
-      begin
-         if Parent_Arr(V) /= V then
-            Parent_Arr(V) := Find(Parent_Arr(V));
-         end if;
-         return Parent_Arr(V);
-      end Find;
-      
-      procedure Union (U, V : Vertex) is
-         Root_U : Vertex;
-         Root_V : Vertex;
-      begin
-         Root_U := Find(U);
-         Root_V := Find(V);
-         if Root_U /= Root_V then
-            Parent_Arr(Root_V) := Root_U;
-         end if;
-      end Union;
-       
-      -- Simple bubble sort
-      procedure Sort_Edges is
-         Temp : Edge;
-      begin
-         for I in Integer range 1 .. Edge_Count - 1 loop
-            for J in Integer range 1 .. Edge_Count - I loop
-               if All_Edges(J).Weight > All_Edges(J + 1).Weight then
-                  Temp := All_Edges(J);
-                  All_Edges(J) := All_Edges(J + 1);
-                  All_Edges(J + 1) := Temp;
-               end if;
-            end loop;
-         end loop;
-      end Sort_Edges;
    begin
       if G.Vertex_Count = 0 then
          return 0;
       end if;
-       
+      
+      -- Initialize Union-Find
+      for V in Vertex range 0 .. Max_Vertices loop
+         Parent_Arr(V) := V;
+      end loop;
+      
       -- Collect all edges
       for U in Vertex range 0 .. Max_Vertices loop
          for V in Vertex range U + 1 .. Max_Vertices loop
@@ -123,23 +94,45 @@ package body Grafalgo is
             end if;
          end loop;
       end loop;
-       
-      -- Sort edges by weight
-      Sort_Edges;
       
-      -- Initialize Union-Find
-      for V in Vertex range 0 .. Max_Vertices loop
-         Parent_Arr(V) := V;
+      -- Simple bubble sort
+      for I in Integer range 1 .. Edge_Count - 1 loop
+         for J in Integer range 1 .. Edge_Count - I loop
+            if All_Edges(J).Weight > All_Edges(J + 1).Weight then
+               declare
+                  Temp : Edge := All_Edges(J);
+               begin
+                  All_Edges(J) := All_Edges(J + 1);
+                  All_Edges(J + 1) := Temp;
+               end;
+            end if;
+         end loop;
       end loop;
-       
+      
       -- Process edges in sorted order
       for I in Integer range 1 .. Edge_Count loop
-         if Find(All_Edges(I).From) /= Find(All_Edges(I).To) then
-            Union(All_Edges(I).From, All_Edges(I).To);
-            Total_Weight := Total_Weight + All_Edges(I).Weight;
-         end if;
+         -- Find with path compression
+         declare
+            V1 : Vertex := All_Edges(I).From;
+            V2 : Vertex := All_Edges(I).To;
+            Root1, Root2 : Vertex;
+            function Find (V : Vertex) return Vertex is
+            begin
+               if Parent_Arr(V) /= V then
+                  Parent_Arr(V) := Find(Parent_Arr(V));
+               end if;
+               return Parent_Arr(V);
+            end Find;
+         begin
+            Root1 := Find(V1);
+            Root2 := Find(V2);
+            if Root1 /= Root2 then
+               Parent_Arr(Root2) := Root1;
+               Total_Weight := Total_Weight + All_Edges(I).Weight;
+            end if;
+         end;
       end loop;
-       
+        
       return Total_Weight;
    end Kruskal_MST;
 
