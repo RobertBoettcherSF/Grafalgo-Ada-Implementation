@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.18
+--  Version: 0.19
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -74,7 +74,7 @@ package body Grafalgo is
       Parent_Arr : Parent_Array;
       Total_Weight : Integer := 0;
       Edge_Count : Integer := 0;
-      Edges : Edge_List_Access := new Edge_List;
+      Edges : constant Edge_List_Access := new Edge_List;
       
       -- Find with path compression (defined here to access Parent_Arr)
       function Find (X : Vertex) return Vertex is

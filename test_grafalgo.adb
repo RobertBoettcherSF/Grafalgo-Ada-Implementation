@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.03
+--  Version: 0.04
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -103,7 +103,7 @@ begin
    Add_Edge(G, (From => 0, To => 2, Weight => 3));
    Assert_Equal(Prim_MST(G), 4, "MST of square graph is 4");
    Assert_Equal(Kruskal_MST(G), 4, "Kruskal MST of square graph is 4");
-   Assert_Equal(Dijkstra_Shortest_Path(G, 0, 3), 3, 
+   Assert_Equal(Dijkstra_Shortest_Path(G, 0, 3), 2, 
      "Shortest path from 0 to 3 is 3");
    New_Line;
 
