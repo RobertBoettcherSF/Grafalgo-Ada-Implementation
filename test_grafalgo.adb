@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.09
+--  Version: 0.10
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
@@ -126,10 +126,9 @@ begin
    Add_Vertex(G, 0);
    Add_Vertex(G, 1);
    Add_Vertex(G, 2);
-   -- Use directed edges to avoid negative cycles
-   G.Adjacency(0)(1) := -1;  -- 0 -> 1
-   G.Adjacency(1)(2) := -2;  -- 1 -> 2
-   G.Adjacency(0)(2) := 4;   -- 0 -> 2
+   Add_Directed_Edge(G, 0, 1, -1);
+   Add_Directed_Edge(G, 1, 2, -2);
+   Add_Directed_Edge(G, 0, 2, 4);
    Assert_Equal(Bellman_Moore_Shortest_Path(G, 0, 2), -3, 
      "Bellman-Moore handles negative weights: 0->1->2 = -3");
    New_Line;
@@ -233,10 +232,9 @@ begin
    Add_Vertex(G, 0);
    Add_Vertex(G, 1);
    Add_Vertex(G, 2);
-   -- Use directed edges to avoid negative cycles
-   G.Adjacency(0)(1) := -1;  -- 0 -> 1
-   G.Adjacency(1)(2) := -2;  -- 1 -> 2
-   G.Adjacency(0)(2) := 4;   -- 0 -> 2
+   Add_Directed_Edge(G, 0, 1, -1);
+   Add_Directed_Edge(G, 1, 2, -2);
+   Add_Directed_Edge(G, 0, 2, 4);
    Assert_Equal(Prim_MST(G), -3, "Prim MST with negative weights: 0-1-2 = -3");
    Assert_Equal(Kruskal_MST(G), -3, 
      "Kruskal MST with negative weights: 0-1-2 = -3");
