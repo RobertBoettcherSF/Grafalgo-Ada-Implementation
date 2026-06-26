@@ -126,9 +126,10 @@ begin
    Add_Vertex(G, 0);
    Add_Vertex(G, 1);
    Add_Vertex(G, 2);
-   Add_Edge(G, (From => 0, To => 1, Weight => -1));
-   Add_Edge(G, (From => 1, To => 2, Weight => -2));
-   Add_Edge(G, (From => 0, To => 2, Weight => 4));
+   -- Use directed edges to avoid negative cycles
+   G.Adjacency(0)(1) := -1;  -- 0 -> 1
+   G.Adjacency(1)(2) := -2;  -- 1 -> 2
+   G.Adjacency(0)(2) := 4;   -- 0 -> 2
    Assert_Equal(Bellman_Moore_Shortest_Path(G, 0, 2), -3, 
      "Bellman-Moore handles negative weights: 0->1->2 = -3");
    New_Line;
@@ -232,9 +233,10 @@ begin
    Add_Vertex(G, 0);
    Add_Vertex(G, 1);
    Add_Vertex(G, 2);
-   Add_Edge(G, (From => 0, To => 1, Weight => -1));
-   Add_Edge(G, (From => 1, To => 2, Weight => -2));
-   Add_Edge(G, (From => 0, To => 2, Weight => 4));
+   -- Use directed edges to avoid negative cycles
+   G.Adjacency(0)(1) := -1;  -- 0 -> 1
+   G.Adjacency(1)(2) := -2;  -- 1 -> 2
+   G.Adjacency(0)(2) := 4;   -- 0 -> 2
    Assert_Equal(Prim_MST(G), -3, "Prim MST with negative weights: 0-1-2 = -3");
    Assert_Equal(Kruskal_MST(G), -3, 
      "Kruskal MST with negative weights: 0-1-2 = -3");
