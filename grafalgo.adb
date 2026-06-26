@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.30
+--  Version: 0.31
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -419,7 +419,7 @@ package body Grafalgo is
          else
             declare
                Best_V : Vertex := Vertex'Last;
-               Best_Weight : Integer := Integer'Last;
+               Best_Weight : Integer := Integer'First;
             begin
                -- Find the best (maximum weight) edge from U to unmatched
                -- vertex
