@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.11
+--  Version: 0.12
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -27,7 +27,8 @@ package body Grafalgo is
          return 0;
       end if;
        
-      -- Initialize
+      -- Initialize - find first vertex with edges
+      -- Start with vertex 0
       Key(0) := 0;
       Parent(0) := 0;
        
@@ -66,9 +67,53 @@ package body Grafalgo is
    -- Implementation of Kruskal's Minimum Spanning Tree Algorithm
    function Kruskal_MST (G : Graph) return Integer is
       type Parent_Array is array (Vertex range 0 .. Max_Vertices) of Vertex;
+      type Edge_List is array (Positive range 1 .. Max_Vertices * Max_Vertices)
+        of Edge;
       
       Parent_Arr : Parent_Array;
       Total_Weight : Integer := 0;
+      Edge_Count : Positive := 0;
+      Edges : Edge_List;
+      
+      -- Find with path compression (defined here to access Parent_Arr)
+      function Find (X : Vertex) return Vertex is
+      begin
+         if Parent_Arr(X) /= X then
+            Parent_Arr(X) := Find(Parent_Arr(X));
+         end if;
+         return Parent_Arr(X);
+      end Find;
+      
+      -- Collect all edges from the graph
+      procedure Collect_Edges is
+      begin
+         Edge_Count := 0;
+         for U in Vertex range 0 .. Max_Vertices loop
+            for V in Vertex range U + 1 .. Max_Vertices loop
+               if G.Adjacency(U)(V) /= No_Edge then
+                  Edge_Count := Edge_Count + 1;
+                  Edges(Edge_Count) := (From => U, To => V, 
+                    Weight => G.Adjacency(U)(V));
+               end if;
+            end loop;
+         end loop;
+      end Collect_Edges;
+      
+      -- Simple bubble sort for edges by weight
+      procedure Sort_Edges is
+         Temp : Edge;
+      begin
+         for I in Positive range 1 .. Edge_Count - 1 loop
+            for J in Positive range 1 .. Edge_Count - I loop
+               if Edges(J).Weight > Edges(J + 1).Weight then
+                  Temp := Edges(J);
+                  Edges(J) := Edges(J + 1);
+                  Edges(J + 1) := Temp;
+               end if;
+            end loop;
+         end loop;
+      end Sort_Edges;
+      
    begin
       if G.Vertex_Count = 0 then
          return 0;
@@ -79,60 +124,24 @@ package body Grafalgo is
          Parent_Arr(V) := V;
       end loop;
       
-      -- Collect and sort edges on the fly (no need to store all edges)
-      -- Simple approach: iterate through all possible edges in order
-      for Weight in Integer range 1 .. Integer'Last loop
+      -- Collect and sort all edges
+      Collect_Edges;
+      Sort_Edges;
+      
+      -- Process edges in sorted order
+      for I in Positive range 1 .. Edge_Count loop
          declare
-            Found : Boolean := False;
+            E : Edge := Edges(I);
+            Root_U : Vertex := Find(E.From);
+            Root_V : Vertex := Find(E.To);
          begin
-            -- Find an edge with this weight
-            for U in Vertex range 0 .. Max_Vertices loop
-               for V in Vertex range U + 1 .. Max_Vertices loop
-                  if G.Adjacency(U)(V) = Weight then
-                     -- Found an edge with this weight
-                     Found := True;
-                     exit;
-                  end if;
-               end loop;
-               if Found then
-                  exit;
-               end if;
-            end loop;
-            
-            if not Found then
-               -- No more edges at this weight or higher
-               exit;
+            if Root_U /= Root_V then
+               Parent_Arr(Root_V) := Root_U;
+               Total_Weight := Total_Weight + E.Weight;
             end if;
-            
-            -- Process all edges with this weight
-            for U in Vertex range 0 .. Max_Vertices loop
-               for V in Vertex range U + 1 .. Max_Vertices loop
-                  if G.Adjacency(U)(V) = Weight then
-                     -- Find with path compression
-                     declare
-                        Root_U : Vertex := U;
-                        Root_V : Vertex := V;
-                        function Find (X : Vertex) return Vertex is
-                        begin
-                           if Parent_Arr(X) /= X then
-                              Parent_Arr(X) := Find(Parent_Arr(X));
-                           end if;
-                           return Parent_Arr(X);
-                        end Find;
-                     begin
-                        Root_U := Find(U);
-                        Root_V := Find(V);
-                        if Root_U /= Root_V then
-                           Parent_Arr(Root_V) := Root_U;
-                           Total_Weight := Total_Weight + Weight;
-                        end if;
-                     end;
-                  end if;
-               end loop;
-            end loop;
          end;
       end loop;
-        
+      
       return Total_Weight;
    end Kruskal_MST;
 
