@@ -1,5 +1,5 @@
 --  test_grafalgo.adb
---  Version: 0.08
+--  Version: 0.09
 --  Description: Comprehensive test suite for Grafalgo library
 
 with Ada.Text_IO; use Ada.Text_IO;
