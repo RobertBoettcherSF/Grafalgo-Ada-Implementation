@@ -1,5 +1,5 @@
 --  grafalgo.ads
---  Version: 0.09
+--  Version: 0.11
 --  Description: Specification of Grafalgo library in Ada, including graph
 --  data structures and algorithm interfaces.
 
@@ -12,7 +12,7 @@ package Grafalgo is
       Weight   : Integer;
    end record;
 
-   type Graph is limited private;
+   type Graph is private;
 
    -- Minimum Spanning Tree Algorithms
    function Prim_MST (G : Graph) return Integer;
