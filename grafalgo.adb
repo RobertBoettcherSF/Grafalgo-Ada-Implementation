@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.27
+--  Version: 0.28
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -271,7 +271,7 @@ package body Grafalgo is
       function BFS (Parent : out Parent_Array) return Boolean is
          type Visited_Array is array (Vertex range 0 .. Max_Vertices) 
            of Boolean;
-         
+          
          Visited : Visited_Array := (others => False);
          type Queue_Array is array (Positive range 1 .. Max_Vertices * 2)
            of Vertex;
@@ -297,9 +297,10 @@ package body Grafalgo is
                   if not Visited(V) and then Residual(U, V) /= No_Edge and then
                     Residual(U, V) > 0 then
                      Visited(V) := True;
-                           Queue(Queue_Tail) := V;
+                     Parent(V) := U;
+                     Queue(Queue_Tail) := V;
                      Queue_Tail := Queue_Tail + 1;
-                      
+                       
                      if V = Sink then
                         return True;
                      end if;
