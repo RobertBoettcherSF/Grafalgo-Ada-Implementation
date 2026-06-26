@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.13
+--  Version: 0.14
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -51,7 +51,8 @@ package body Grafalgo is
           
          -- Update key values of adjacent vertices
          for Neighbor in Vertex range 0 .. Max_Vertices loop
-            if G.Adjacency(U)(Neighbor) /= No_Edge and then not In_MST(Neighbor) and then
+            if G.Adjacency(U)(Neighbor) /= No_Edge and then
+              not In_MST(Neighbor) and then
               G.Adjacency(U)(Neighbor) < Key(Neighbor) then
                Key(Neighbor) := G.Adjacency(U)(Neighbor);
             end if;
@@ -194,6 +195,7 @@ package body Grafalgo is
          for V in Vertex range 0 .. Max_Vertices loop
             if G.Adjacency(Current)(V) /= No_Edge and then
               not Visited(V) and then
+              Dist(Current) /= Integer'Last and then
               Dist(Current) + G.Adjacency(Current)(V) < Dist(V) then
                Dist(V) := Dist(Current) + G.Adjacency(Current)(V);
             end if;
@@ -272,7 +274,7 @@ package body Grafalgo is
           
          while Queue_Head < Queue_Tail loop
             declare
-               U : Vertex := Queue(Queue_Head);
+               U : constant Vertex := Queue(Queue_Head);
             begin
                Queue_Head := Queue_Head + 1;
                 
@@ -355,21 +357,21 @@ package body Grafalgo is
    function Hopcroft_Karp_Matching (G : Graph) return Integer is
    begin
       -- Placeholder implementation
-      return 0 + G.Vertex_Count - G.Vertex_Count;
+      return 0 + Integer(G.Vertex_Count) - Integer(G.Vertex_Count);
    end Hopcroft_Karp_Matching;
 
    -- Implementation of Hungarian Algorithm for Bipartite Matching
    function Hungarian_Algorithm_Matching (G : Graph) return Integer is
    begin
       -- Placeholder implementation
-      return 0 + G.Vertex_Count - G.Vertex_Count;
+      return 0 + Integer(G.Vertex_Count) - Integer(G.Vertex_Count);
    end Hungarian_Algorithm_Matching;
 
    -- Implementation of Gabow-Tarjan Edge Coloring Algorithm
    function Gabow_Tarjan_Edge_Coloring (G : Graph) return Integer is
    begin
       -- Placeholder implementation
-      return 0 + G.Vertex_Count - G.Vertex_Count;
+      return 0 + Integer(G.Vertex_Count) - Integer(G.Vertex_Count);
    end Gabow_Tarjan_Edge_Coloring;
 
    -- Graph Operations
