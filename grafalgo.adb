@@ -1,5 +1,5 @@
 --  grafalgo.adb
---  Version: 0.23
+--  Version: 0.24
 --  Description: Implementation of Grafalgo library algorithms and data
 --  structures in Ada.
 
@@ -463,13 +463,13 @@ package body Grafalgo is
                   -- Mark colors used by edges incident to U or V
                   for W in Vertex range 0 .. Max_Vertices loop
                      if W /= V and then G.Adjacency(U)(W) /= No_Edge then
-                        if Edge_Colors(U)(W) > 0 then
-                           Available(Edge_Colors(U)(W)) := False;
+                        if Edge_Colors(U, W) > 0 then
+                           Available(Edge_Colors(U, W)) := False;
                         end if;
                      end if;
                      if W /= U and then G.Adjacency(V)(W) /= No_Edge then
-                        if Edge_Colors(V)(W) > 0 then
-                           Available(Edge_Colors(V)(W)) := False;
+                        if Edge_Colors(V, W) > 0 then
+                           Available(Edge_Colors(V, W)) := False;
                         end if;
                      end if;
                   end loop;
@@ -482,8 +482,8 @@ package body Grafalgo is
                   
                   -- Assign the color
                   if C <= Max_Vertices then
-                     Edge_Colors(U)(V) := Integer(C);
-                     Edge_Colors(V)(U) := Integer(C);
+                     Edge_Colors(U, V) := Integer(C);
+                     Edge_Colors(V, U) := Integer(C);
                      if Integer(C) > Max_Color then
                         Max_Color := C;
                      end if;
